@@ -5,6 +5,8 @@ import Select from "react-select";
 import Swal from "sweetalert2";
 import QRCode from "qrcode";
 import { jsPDF } from "jspdf";
+import { XCircle } from "lucide-react";
+
 
 const DetailPage = ({
   handlePageChanges,
@@ -86,6 +88,7 @@ const DetailPage = ({
     if (detailId) {
       fetchLO();
       fetchKabupaten();
+      fetchItemLO();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailId]);
@@ -198,14 +201,16 @@ const DetailPage = ({
       navigate('/');
     }
     try {
-      const response = await axios.get(`http://localhost:3091/api/v1/titikbongkar/po/${detailId}`, {
+      const response = await axios.get(`http://localhost:3091/api/v1/muatan/lo/${detailId}`, {
         headers: {
           Authorization: token
         }
       });
       if (response.data.data.length !== 0) {
         const datafetch = response.data.data.map(dataitem => ({
+          id_item_lo: dataitem.id_item_lo,
           id_kabupaten_kota: dataitem.id_kabupaten_kota,
+          nama_kabupaten_kota: dataitem.nama_kabupaten_kota,
           titik_bongkar: dataitem.titik_bongkar,
           beras: dataitem.beras,
           minyak: dataitem.minyak,
@@ -235,7 +240,7 @@ const DetailPage = ({
     console.log([...dataMuatantoSubmit.entries()]);
     try {
       await axios.post(
-        `http://localhost:3090/api/v1/titikbongkar`,
+        `http://localhost:3091/api/v1/muatan`,
         dataMuatantoSubmit,
         {
           headers: {
@@ -245,13 +250,13 @@ const DetailPage = ({
         }
       );
       Swal.fire({
-        title: "Data Titik Bongkar",
+        title: "Data Item LO",
         text: "Data Berhasil Diperbaharui",
         icon: "success",
         showConfirmButton: false,
         timer: 2000,
       }).then(() => {
-        fetchTitikBongkar();
+        fetchItemLO();
       });
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -264,105 +269,26 @@ const DetailPage = ({
     }
   };
 
-  const handleAdd = async (event) => {
-    event.preventDefault();
-    if (!token) {
-      navigate("/");
-    }
-    const dataToSubmit = {
-      rencanaSalur: {
-        ...formDataRencanaSalur,
-        id_rencana_salur: detailId,
-        id_alokasi: selectedAlokasi.value,
-        id_gudang: selectedGudang.value,
-        id_dtt: selectedDesaKelurahan.value,
-        kategori: "CREATE",
-      },
-      logData: {
-        id_user,
-        kategori_item: "CREATE",
-        tanggal_log: new Date().toISOString(),
-      },
-    };
-
+  const handleDelete = async (id_item_lo) => {
     try {
-      await axios.post(
-        `http://localhost:3091/api/v1/januari-item-rencana-salur-with-log`,
-        dataToSubmit,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
+      await axios.delete(`http://localhost:3091/api/v1/muatan/${id_item_lo}`, {
+        headers: { Authorization: token },
+      });
       Swal.fire({
         title: "Data Item Rencana Salur",
         text: "Data Berhasil Ditambahkan",
         icon: "success",
         showConfirmButton: false,
         timer: 2000,
-      }).then(() => {
-        fetchItemRencanaSalur();
-      });
+      })
+        .then(() => fetchItemLO());
     } catch (error) {
-      console.error("Error submitting data:", error);
+      console.error("Error deleting data:", error);
       Swal.fire({
         title: "Error",
-        text: "Gagal menambahkan data. Silakan coba lagi.",
+        text: "Gagal memperbarui data. Silakan coba lagi.",
         icon: "error",
         showConfirmButton: true,
-      });
-    }
-  };
-
-  const handleDelete = async (id_item_rencana_salur, id_rencana_salur) => {
-    if (!token) {
-      navigate("/");
-    }
-    const dataToSubmit = {
-      rencanaSalur: {
-        ...formDataRencanaSalur,
-        id_item_rencana_salur: id_item_rencana_salur,
-        id_rencana_salur: id_rencana_salur,
-        kategori: "DELETED",
-      },
-      logData: {
-        id_item_rencana_salur_log: id_item_rencana_salur,
-        id_rencana_salur: id_rencana_salur,
-        id_user,
-        tanggal_log: new Date().toISOString(),
-        kategori_item: "DELETED",
-      },
-    };
-
-    try {
-      await axios.put(
-        `http://localhost:3091/api/v1/januari-item-rencana-salur-with-log/delete`,
-        dataToSubmit,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      Swal.fire({
-        title: "Data Item Rencana Salur",
-        text: "Data berhasil dihapus!",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 2000,
-      }).then(() => {
-        fetchItemRencanaSalur();
-      });
-    } catch (error) {
-      Swal.fire({
-        title: "Data Item Rencana Salur",
-        text: "Data berhasil dihapus!",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 2000,
-      }).then(() => {
-        fetchItemRencanaSalur();
       });
     }
   };
@@ -677,18 +603,7 @@ const DetailPage = ({
               SIMPAN PERUBAHAN
             </button>
           </div>
-          <div className="col-md-3 col-sm-12 mb-3">
-            <label htmlFor="" className="form-label">
-              Proses
-            </label>
-            <button
-              type="button"
-              onClick={downloadPDF}
-              className="btn btn-primary w-100"
-            >
-              DOWNLOAD
-            </button>
-          </div>
+
           <div className='row' >
             <div className="col-lg-12">
               <div className="mb-3">
@@ -745,7 +660,19 @@ const DetailPage = ({
               onClick={handleUpdateMuatan}
               className="btn btn-primary w-100"
             >
-              SIMPAN PERUBAHAN
+              SIMPAN DATA
+            </button>
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="" className="form-label">
+              Proses
+            </label>
+            <button
+              type="button"
+              onClick={downloadPDF}
+              className="btn btn-primary w-100"
+            >
+              DOWNLOAD
             </button>
           </div>
           <div className="col-lg-12 mt-2">
@@ -753,7 +680,7 @@ const DetailPage = ({
               <div className="divider text-start">
                 <div className="divider-text">
                   <span className="menu-header-text fs-6">
-                    Item Rencana Salur
+                    Item Rencana Muatan
                   </span>
                 </div>
               </div>
@@ -781,12 +708,12 @@ const DetailPage = ({
                         <td>{index + 1}</td>
                         <td>{item.nama_kabupaten_kota}</td>
                         <td>{item.titik_bongkar}</td>
-                        <td>{item.beras}</td>
-                        <td>{item.minyak}</td>
-                        <td>{item.terigu}</td>
-                        <td>{item.gula}</td>
+                        <td>{item.beras} ({(item.beras * 5)} Kg)</td>
+                        <td>{item.minyak} ({(item.minyak * 2)} Lt)</td>
+                        <td>{item.terigu} ({(item.terigu * 1)} Kg)</td>
+                        <td>{item.gula} ({(item.gula * 1)} Kg)</td>
                         <td className="text-center">
-                          <button onClick={() => handleDelete(item.id_titik_bongkar)} className="border-0 bg-transparent text-danger">
+                          <button onClick={() => handleDelete(item.id_item_lo)} className="border-0 bg-transparent text-danger">
                             <XCircle size={20} />
                           </button>
                         </td>
