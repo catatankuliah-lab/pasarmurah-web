@@ -24,7 +24,7 @@
             "text": "Rekap LO",
             "icon": "bx bx-file",
             "available": true,
-            "link": "/4/rekaplo",
+            "link": "/4/rekap",
             "roles": ["4"]
         }]
     }
