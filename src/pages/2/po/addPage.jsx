@@ -33,7 +33,7 @@ const AddPage = ({ handlePageChange, handleBackClick }) => {
             navigate('/');
         }
         try {
-            const response = await axios.get('http://localhost:3089/api/v1/alokasi', {
+            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -70,7 +70,7 @@ const AddPage = ({ handlePageChange, handleBackClick }) => {
         setSelectedAlokasi(selectedOption);
         let nomorpo = 0;
         try {
-            const response = await axios.get(`http://localhost:3089/api/v1/po/jumlah/kantor/${id_kantor}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/po/jumlah/kantor/${id_kantor}`, {
                 headers: {
                     Authorization: token
                 }
@@ -108,7 +108,7 @@ const AddPage = ({ handlePageChange, handleBackClick }) => {
             status_po: "DIBUAT"
         };
         try {
-            const response = await axios.post(`http://localhost:3089/api/v1/po`, dataToSubmit, {
+            const response = await axios.post(`http://localhost:3091/api/v1/po`, dataToSubmit, {
                 headers: {
                     Authorization: token
                 }

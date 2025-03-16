@@ -49,7 +49,7 @@ const IndexPage = () => {
             navigate('/');
         }
         try {
-            const response = await axios.get('http://localhost:3089/api/v1/alokasi', {
+            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -129,7 +129,7 @@ const IndexPage = () => {
         }
         try {
             const queryParams = new URLSearchParams(formFilter).toString();
-            const response = await axios.get(`http://localhost:3089/api/v1/po/filter?${queryParams}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/po/filter?${queryParams}`, {
                 headers: {
                     Authorization: token,
                 }

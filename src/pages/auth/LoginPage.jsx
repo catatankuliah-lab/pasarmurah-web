@@ -21,13 +21,14 @@ const LoginPage = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3090/api/v1/login', formData);
+            const response = await axios.post('http://localhost:3091/api/v1/login', formData);
             console.log(response.data);
             const id_role = response.data.data.id_role;
             const id_user = response.data.data.id_user;
             const token = response.data.token;
             localStorage.setItem('id_role', id_role);
             localStorage.setItem('id_user', id_user);
+            localStorage.setItem('id_kantor', id_kantor);
             localStorage.setItem('token', token);
             Swal.fire({
                 title: 'Login',

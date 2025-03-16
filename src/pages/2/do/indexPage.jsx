@@ -98,7 +98,7 @@ const IndexPage = () => {
             navigate('/');
         }
         try {
-            const response = await axios.get('http://localhost:3089/api/v1/alokasi', {
+            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -145,7 +145,7 @@ const IndexPage = () => {
             navigate('/');
         }
         try {
-            const response = await axios.get(`http://localhost:3089/api/v1/${link}-do/gudang/1}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/${link}-do/gudang/1}`, {
                 headers: {
                     Authorization: token
                 },
@@ -196,7 +196,7 @@ const IndexPage = () => {
                         </div>
                         <div class="modal-body">
                             <iframe
-                                src={`http://localhost:3089/api/v1/${link}-do/${row.path_do}`}
+                                src={`http://localhost:3091/api/v1/${link}-do/${row.path_do}`}
                                 width="100%"
                                 height="700px"
                                 title="PDF DO Viewer"

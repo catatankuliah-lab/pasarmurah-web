@@ -1,41 +1,51 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import DataTable from "react-data-table-component";
-import DetailPage from "./detailPage";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import DataTable from 'react-data-table-component';
+import AddPage from './AddPage';
+import DetailPage from './detailPage';
+import Select from 'react-select';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
+import QrScanner from "react-qr-scanner";
 
 const IndexPage = () => {
-    const token = localStorage.getItem("token");
-    const id_user = localStorage.getItem("id_user");
+    // Data dari localstorage
+    const token = localStorage.getItem('token');
+    const id_kantor = localStorage.getItem('id_kantor');
+
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!token) {
-            navigate("/");
+            navigate('/');
         }
-    }, [navigate, token]);
-
-    const [currentView, setCurrentView] = useState("index");
-    const [detailId, setDetailId] = useState(null);
-    const [data, setData] = useState([]);
+    }, [navigate]);
     const [filteredData, setFilteredData] = useState([]);
     const [filters, setFilters] = useState({
-        nomor_po: "",
-        customer: "",
-        nopol_armada: "",
+        nomor_lo: "",
+        tanggal_lo: "",
+        nopol_mobil: "",
         nama_driver: "",
-        startDate: "",
-        endDate: "",
-        status_po: ""
+        titik_muat: "",
+        status_lo: ""
     });
     const [tempFilters, setTempFilters] = useState(filters);
+    const [alokasiOption, setAlokasiOption] = useState([]);
+    const [selectedAlokasi, setSelectedAlokasi] = useState(null);
+    const [currentView, setCurrentView] = useState('index');
+    const [detailId, setDetailId] = useState(null);
+    const [alokasiInit, setAlokasiInit] = useState(null);
+
+    const [isScannerVisible, setIsScannerVisible] = useState(false);
+    const [result, setResult] = useState("");
+
+    const [dtt, setIDDTT] = useState(0);
+
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
     const [limit, setLimit] = useState(10);
-    const [idCustomerInit, setIdCustomerInit] = useState(0);
-    const [idArmadaInit, setIdArmadaInit] = useState(0);
-    const [idDriverInit, setIdDriverInit] = useState(0);
 
     const columns = [
         {
@@ -45,74 +55,54 @@ const IndexPage = () => {
             width: "50px",
         },
         {
-            name: "Nomor PO",
-            selector: (row) => row.nomor_po,
+            name: "Nomor LO",
+            selector: (row) => row.decrypted_nik,
             sortable: true,
             width: "200px",
         },
         {
-            name: "Tanggal PO",
-            selector: (row) => formatDate(row.tanggal_po),
-            sortable: true,
-            width: "150px",
-        },
-        {
-            name: "Jam Stanby dan Muat",
-            selector: (row) => `${row.jam_pemesanan_po} | ${row.jam_muat}`,
+            name: "Tanggal LO",
+            selector: (row) => row.nama_lengkap,
             sortable: true,
             width: "200px",
         },
         {
-            name: "Customer",
-            selector: (row) => row.nama_customer,
+            name: "Titik Muat",
+            selector: (row) => row.nama_provinsi,
             sortable: true,
             width: "200px",
         },
         {
-            name: "Origin to Destination",
-            selector: (row) => `${row.alamat_customer} to ${row.destination}`,
+            name: "Nopol Mobil",
+            selector: (row) => row.nama_kabupaten_kota,
             sortable: true,
             width: "200px",
         },
         {
-            name: "Armada",
-            selector: (row) => `${row.nopol_armada} (${row.nama_jenis_kendaraan})`,
+            name: "Nama Driver",
+            selector: (row) => row.nama_kecamatan,
             sortable: true,
             width: "200px",
-        },
-        {
-            name: "Driver",
-            selector: (row) => row.nama_driver,
-            sortable: true,
-            width: "200px",
-        },
-        {
-            name: "Status PO",
-            selector: (row) => row.status_po,
-            sortable: true,
-            width: "200px",
-        },
-        {
-            name: "",
-            selector: (row) => (
-                <button onClick={() => handleDetailClick(row)} className="btn btn-link">
-                    <i className="bx bx-zoom-in text-priamry"></i>
-                </button>
-            ),
-            sortable: false,
-            width: "100px",
-            style: {
-                textAlign: "center",
-            },
         },
     ];
 
     const customStyles = {
-        table: { style: { backgroundColor: "transparent" } },
-        headRow: {
-            style: { backgroundColor: "transparent", borderBottom: "2px solid #ccc" },
+        table: {
+            style: {
+                backgroundColor: "transparent",
+            },
         },
-        rows: { style: { backgroundColor: "transparent" } },
+        headRow: {
+            style: {
+                backgroundColor: "transparent",
+                borderBottom: "2px solid #ccc",
+            },
+        },
+        rows: {
+            style: {
+                backgroundColor: "transparent",
+            },
+        },
         pagination: {
             style: {
                 backgroundColor: "transparent",
@@ -121,66 +111,9 @@ const IndexPage = () => {
             },
         },
     };
-
-    const loadData = async (page) => {
-        setLoading(true);
-        if (!token) {
-            navigate("/");
-        }
-        try {
-            console.log(id_user,
-                page,
-                limit,
-                filters.nomor_po,
-                filters.customer,
-                filters.nopol_armada,
-                filters.nama_driver,
-                filters.startDate,
-                filters.endDate,
-                filters.status_po);
-            const response = await axios.get(`http://localhost:3090/api/v1/po/driver/${id_user}`, {
-                headers: { Authorization: token },
-                params: {
-                    page,
-                    limit,
-                    id_user,
-                    nomor_po: filters.nomor_po,
-                    customer: filters.customer,
-                    nopol_armada: filters.nopol_armada,
-                    nama_driver: filters.nama_driver,
-                    startDate: filters.startDate,
-                    endDate: filters.endDate,
-                    status_po: filters.status_po
-                },
-            });
-            
-            const fetchedData = Array.isArray(response.data.data)
-                ? response.data.data
-                : [response.data.data];
-
-            setData(fetchedData);
-            setTotalRecords(response.data.totalData);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadData(currentPage);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage, limit]);
-
-    useEffect(() => {
-        setCurrentPage(1); // Reset ke halaman 1 saat filter berubah
-        loadData(1);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters]); // Fetch ulang data saat filter berubah
-
     useEffect(() => {
         const filtered = data.filter((item) => {
-            const matchNomorPO = item.nomor_po.toLowerCase().includes(filters.nomor_po.toLowerCase());
+            const matchNomorLO = item.nomor_po.toLowerCase().includes(filters.nomor_po.toLowerCase());
             const matchCustomer = item.nama_customer.toLowerCase().includes(filters.customer.toLowerCase());
             const matchNopolArmada = item.nopol_armada.toLowerCase().includes(filters.nopol_armada.toLowerCase());
             const matchNamaDriver = item.nama_driver.toLowerCase().includes(filters.nama_driver.toLowerCase());
@@ -192,72 +125,153 @@ const IndexPage = () => {
 
             const matchDate = (!startDate || itemDate >= startDate) && (!endDate || itemDate <= endDate);
 
-            return matchNomorPO && matchCustomer && matchNopolArmada && matchNamaDriver && matchDate && matchStatusPO;
+            return matchNomorLO && matchCustomer && matchNopolArmada && matchNamaDriver && matchDate && matchStatusPO;
         });
 
         setFilteredData(filtered);
     }, [filters, data]);
 
+    const fetchAlokasi = async () => {
+        if (!token) {
+            navigate('/');
+        }
+        try {
+            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
+                headers: {
+                    Authorization: token
+                }
+            });
+            if (response.data.data.length != 0) {
+                const datafetch = response.data.data.map(dataitem => ({
+                    value: dataitem.id_alokasi,
+                    label: dataitem.bulan_alokasi + " " + dataitem.tahun_alokasi
+                }));
+                setAlokasiOption(datafetch);
+            } else {
+                setAlokasiOption([]);
+            }
+        } catch (error) {
+            console.log(error);
+            Swal.fire({
+                title: 'Data Alokasi',
+                text: 'Data Alokasi Tidak Ditemukan',
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2000,
+                position: 'center',
+                timerProgressBar: true
+            });
+            setAlokasiOption([]);
+        }
+    };
+
+    useEffect(() => {
+        // fetchAlokasi();
+    }, []);
+
+    const previewStyle = {
+        height: 355,
+        width: 355,
+    };
+
+    const handleScan = async (data) => {
+        if (data) {
+            setResult(data.text);
+            setIsScannerVisible(false);
+            console.log(data.text);
+            const response = await axios.get(`http://localhost:3091/api/v1/januari-dtt/kode-dtt/${data.text}`, {
+                headers: {
+                    Authorization: token
+                }
+            });
+            setIDDTT(response.data.data.id_dtt)
+            console.log(response.data.data.id_dtt);
+        }
+    };
+
+    const handleError = (err) => {
+        console.error('Error with QR scanner: ', err);
+    };
+
+    const loadData = async (page) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(
+                `http://localhost:3091/api/v1/januari-kpm/dtt/${dtt}`,
+                {
+                    headers: {
+                        Authorization: token,
+                    },
+                    params: {
+                        page,
+                        limit,
+                    },
+                }
+            );
+            const fetchedData = Array.isArray(response.data.data)
+                ? response.data.data
+                : [response.data.data];
+            setData(fetchedData);
+            setTotalRecords(response.data.totalData);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadData(currentPage);
+    }, [currentPage, limit, dtt]);
+
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
-    const handleAddClick = () => setCurrentView("add");
-
     const handleDetailClick = (row) => {
-        if (row !== null) {
-            setDetailId(row.id_po);
-            setIdCustomerInit(row.id_customer);
-            setIdArmadaInit(row.id_armada);
-            setIdDriverInit(row.id_driver);
-            setCurrentView("detail");
+        if (row.id_rencana_salur !== null) {
+            setDetailId(row.id_rencana_salur);
+            setAlokasiInit(row.id_alokasi)
+            setCurrentView('detail');
         }
     };
 
-    const handlePageChanges = (page, id = null) => {
+    const handleAddClick = () => setCurrentView('add');
+
+    const handlePageChanges = (page, id = null, idalokasi) => {
         if (id !== null) {
             setDetailId(id);
+            setAlokasiInit(idalokasi)
         }
         setCurrentView(page);
     };
 
     const handleBackClick = () => {
         setCurrentView("index");
-        loadData();
     };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = (`0${date.getMonth() + 1}`).slice(-2);
-        const day = (`0${date.getDate()}`).slice(-2);
-        return `${day}/${month}/${year}`;
+    const handleAlokasiChange = async (selectedOption) => {
+        setSelectedAlokasi(selectedOption);
+        setIsScannerVisible(true);
     };
 
     return (
         <div>
-            {currentView === "index" && (
+            {currentView === 'index' && (
                 <>
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="mb-3">
                                 <div className="divider text-start fw-bold">
                                     <div className="divider-text">
-                                        <span className="menu-header-text fs-6">Data Purchase Order</span>
+                                        <span className="menu-header-text fs-6">Data LO</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="col-lg-12 mb-3">
                             <div className="">
-                                Klik{" "}
-                                <button
-                                    className="fw-bold btn btn-link p-0"
-                                    onClick={() => handleAddClick()}
-                                >
-                                    disini
-                                </button>{" "}
-                                untuk menambahkan Purchase Order.
+                                Klik <button className="fw-bold btn btn-link p-0" onClick={() => handleAddClick()}>disini</button> untuk menambahkan LO.
                             </div>
                         </div>
                         <div className="col-lg-12 mt-2">
@@ -345,10 +359,22 @@ const IndexPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-lg-12">
+                        {isScannerVisible && (
+                            <div className="row">
+                                <div className="col-md-3 col-sm-12">
+                                    <QrScanner
+                                        delay={300}
+                                        style={previewStyle}
+                                        onError={handleError}
+                                        onScan={handleScan}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <div className="col-lg-12 mt-3">
                             <DataTable
                                 columns={columns}
-                                data={filteredData} // Gunakan data yang sudah difilter
+                                data={data}
                                 pagination
                                 paginationServer
                                 paginationTotalRows={totalRecords}
@@ -365,21 +391,8 @@ const IndexPage = () => {
                     </div>
                 </>
             )}
-            {currentView === "add" && (
-                <AddPage
-                    handlePageChanges={handlePageChanges}
-                    handleBackClick={handleBackClick}
-                />
-            )}
-            {currentView === "detail" && (
-                <DetailPage
-                    detailId={detailId}
-                    idCustomerInit={idCustomerInit}
-                    idArmadaInit={idArmadaInit}
-                    idDriverInit={idDriverInit}
-                    handleBackClick={handleBackClick}
-                />
-            )}
+            {currentView === 'add' && <AddPage handlePageChanges={handlePageChanges} handleBackClick={handleBackClick} />}
+            {currentView === 'detail' && <DetailPage handlePageChanges={handlePageChanges} detailId={detailId} handleBackClick={handleBackClick} alokasiInit={alokasiInit} />}
         </div>
     );
 };

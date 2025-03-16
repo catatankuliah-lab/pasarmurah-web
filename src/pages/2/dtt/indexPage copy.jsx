@@ -107,7 +107,7 @@ const IndexPage = () => {
             navigate("/");
         }
         try {
-            const response = await axios.get("http://localhost:3089/api/v1/alokasi", {
+            const response = await axios.get("http://localhost:3091/api/v1/alokasi", {
                 headers: {
                     Authorization: token,
                 },
@@ -141,7 +141,7 @@ const IndexPage = () => {
         }
         const fetchProvinsiOptions = async () => {
             try {
-                const response = await axios.get("http://localhost:3089/api/v1/provinsi", {
+                const response = await axios.get("http://localhost:3091/api/v1/provinsi", {
                     headers: {
                         Authorization: token,
                     },
@@ -169,7 +169,7 @@ const IndexPage = () => {
         const fetchKabupatenOptions = async (provinsiID) => {
             try {
                 const response = await axios.get(
-                    `http://localhost:3089/api/v1/kabupatenkota/${provinsiID.value}`,
+                    `http://localhost:3091/api/v1/kabupatenkota/${provinsiID.value}`,
                     {
                         headers: {
                             Authorization: token,
@@ -203,7 +203,7 @@ const IndexPage = () => {
         const fetchKecamatanOptions = async (kabupatenID) => {
             try {
                 const response = await axios.get(
-                    `http://localhost:3089/api/v1/kecamatan/${kabupatenID.value}`,
+                    `http://localhost:3091/api/v1/kecamatan/${kabupatenID.value}`,
                     {
                         headers: {
                             Authorization: token,
@@ -235,7 +235,7 @@ const IndexPage = () => {
         const fetchDesaKelurahanOptions = async (kecamatanID) => {
             try {
                 const response = await axios.get(
-                    `http://localhost:3089/api/v1/desaKelurahan/${kecamatanID.value}`,
+                    `http://localhost:3091/api/v1/desaKelurahan/${kecamatanID.value}`,
                     {
                         headers: {
                             Authorization: token,
@@ -278,7 +278,7 @@ const IndexPage = () => {
                     link = "januari";
                 }
                 const response = await axios.get(
-                    `http://localhost:3089/api/v1/${link}-dtt/desakelurahan/${desaKelurahanID.value}`,
+                    `http://localhost:3091/api/v1/${link}-dtt/desakelurahan/${desaKelurahanID.value}`,
                     {
                         headers: {
                             Authorization: token,
@@ -312,7 +312,7 @@ const IndexPage = () => {
         }
         try {
             const response = await axios.get(
-                `http://localhost:3089/api/v1/${linkrencanasalur}-kpm/dtt/${id_dtt}`,
+                `http://localhost:3091/api/v1/${linkrencanasalur}-kpm/dtt/${id_dtt}`,
                 {
                     headers: {
                         Authorization: token,
@@ -363,7 +363,7 @@ const IndexPage = () => {
         try {
             // Fetch data dari API
             const response = await axios.get(
-                `http://localhost:3089/api/v1/${linkrencanasalur}-kpm/download/${id_dtt}`,
+                `http://localhost:3091/api/v1/${linkrencanasalur}-kpm/download/${id_dtt}`,
                 {
                     headers: { Authorization: token },
                 }
@@ -1298,7 +1298,7 @@ const IndexPage = () => {
         }
         try {
             const response = await axios.get(
-                `http://localhost:3089/api/v1/${linkrencanasalur}-kpm/download/${id_dtt}`,
+                `http://localhost:3091/api/v1/${linkrencanasalur}-kpm/download/${id_dtt}`,
                 {
                     headers: { Authorization: token },
                 }
