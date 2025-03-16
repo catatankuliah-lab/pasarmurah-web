@@ -9,55 +9,32 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
     const token = localStorage.getItem('token') || '';
     const id_user = localStorage.getItem('id_user') || '';
+    const id_kantor = localStorage.getItem('id_kantor') || '';
 
-    const [alokasiOption, setAlokasiOption] = useState([]);
-    const [selectedAlokasi, setSelectedAlokasi] = useState(null);
-    const [isScannerVisible, setIsScannerVisible] = useState(false);
     const [result, setResult] = useState("");
     const [kpm, setKPM] = useState(null);
 
     const [selectedPenyaluran, setSelectedPenyaluran] = useState(null);
 
-    const penyaluranOptions = [
-        { value: 'Normal', label: 'Normal' },
-        { value: 'Perwakilan', label: 'Perwakilan' },
-        { value: 'Pengganti', label: 'Pengganti' }
-    ];
 
     const handlePenyaluranChange = (selectedOption) => {
         setSelectedPenyaluran(selectedOption);
     };
 
     const [formData, setFormData] = useState({
-        id_penyaluran: "",
-        id_dtt: "",
-        id_kpm: "",
-        jenis_penyaluran: "",
-        file_ktp: "",
-        file_kpm: "",
-        id_user: "",
-        tanggal_penyaluran: "",
-        waktu_penyaluran: "",
-        nik_perwakilan: "",
-        nama_perwakilan: "",
-        alamat_perwakilan: "",
-        nik_pengganti: "",
-        nama_pengganti: "",
-        alamat_pengganti: "",
-        keterangan_perwakilan: "",
-        keterangan_pergantian: "",
+        id_kantor: "",
+        nomor_lo: "",
+        tanggal_lo: "",
+        titik_muat: "",
+        jenis_mobil: "",
+        nopol_mobil: "",
+        nama_driver: "",
+        telpon_driver: "",
+        file_lo: "",
+        status_lo: "",
+
     });
 
-    const [formDataSPTJM, setFormDataSPTJM] = useState({
-        id_penyaluran: "",
-        kode_sptjm: ""
-    });
-
-    const [fileKTP, setFileKTP] = useState(null);
-    const [fileKPM, setFileKPM] = useState(null);
-    const [previewKTP, setPreviewKTP] = useState(null);
-    const [previewKPM, setPreviewKPM] = useState(null);
-    const [lokasi, setLokasi] = useState(null);
     const [nomorLO, setNomoerLO] = useState("");
 
 
@@ -85,172 +62,96 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
         }
     };
 
-    const fetchLocationInIndonesian = async (latitude, longitude) => {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=id`;
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            const address = data.address;
-            setLokasi({
-                desa: address.village || address.hamlet || "",
-                kecamatan: address.suburb || address.town || address.city_district || "",
-                kabupaten: address.city || address.county || "",
-                provinsi: address.state || "",
-            });
-        } catch (error) {
-            console.error("Gagal mendapatkan lokasi:", error);
-        }
-    };
 
-    const handleGetLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    fetchLocationInIndonesian(latitude, longitude);
-                },
-                (error) => {
-                    console.error("Gagal mendapatkan lokasi:", error);
-                }
-            );
-        } else {
-            console.error("Geolocation tidak didukung di browser ini.");
-        }
-    };
+    // const handleFileChange = (event, setFile, setPreview, kpm, lokasi, type) => {
+    //     const file = event.target.files[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+    //         reader.onload = (e) => {
+    //             const img = new Image();
+    //             img.src = e.target.result;
+    //             img.onload = () => {
+    //                 const canvas = document.createElement("canvas");
+    //                 const ctx = canvas.getContext("2d");
 
-    useEffect(() => {
-        handleGetLocation();
-    }, []);
+    //                 // Set canvas size to image dimensions
+    //                 canvas.width = img.width;
+    //                 canvas.height = img.height;
 
-    const handleFileChange = (event, setFile, setPreview, kpm, lokasi, type) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
+    //                 // Draw image on canvas
+    //                 ctx.drawImage(img, 0, 0);
 
-                    // Set canvas size to image dimensions
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+    //                 // Add timestamp and location text
+    //                 const boxHeight = 150;
+    //                 ctx.globalAlpha = 0.7;
+    //                 ctx.fillStyle = "black";
+    //                 ctx.fillRect(0, img.height - boxHeight, img.width, boxHeight);
 
-                    // Draw image on canvas
-                    ctx.drawImage(img, 0, 0);
+    //                 ctx.globalAlpha = 1;
+    //                 ctx.fillStyle = "white";
+    //                 ctx.font = "30px Arial";
 
-                    // Add timestamp and location text
-                    const boxHeight = 150;
-                    ctx.globalAlpha = 0.7;
-                    ctx.fillStyle = "black";
-                    ctx.fillRect(0, img.height - boxHeight, img.width, boxHeight);
+    //                 // Add timestamp
+    //                 const timestamp = new Date().toLocaleString("id-ID");
+    //                 ctx.fillText(`Waktu: ${timestamp}`, 20, img.height - boxHeight + 60);
 
-                    ctx.globalAlpha = 1;
-                    ctx.fillStyle = "white";
-                    ctx.font = "30px Arial";
+    //                 // Add location details if available
+    //                 if (lokasi) {
+    //                     ctx.fillText(`${lokasi.desa}, ${lokasi.kecamatan}, ${lokasi.kabupaten}`, 20, img.height - boxHeight + 100);
+    //                     ctx.fillText(`${lokasi.provinsi}`, 20, img.height - boxHeight + 120);
+    //                 }
 
-                    // Add timestamp
-                    const timestamp = new Date().toLocaleString("id-ID");
-                    ctx.fillText(`Waktu: ${timestamp}`, 20, img.height - boxHeight + 60);
+    //                 // Convert canvas to image and set preview
+    //                 const finalImage = canvas.toDataURL("image/jpeg", 0.7); // Compress to 70%
+    //                 setPreview(finalImage);
 
-                    // Add location details if available
-                    if (lokasi) {
-                        ctx.fillText(`${lokasi.desa}, ${lokasi.kecamatan}, ${lokasi.kabupaten}`, 20, img.height - boxHeight + 100);
-                        ctx.fillText(`${lokasi.provinsi}`, 20, img.height - boxHeight + 120);
-                    }
+    //                 // Convert data URL to Blob
+    //                 const blob = dataURLtoBlob(finalImage);
 
-                    // Convert canvas to image and set preview
-                    const finalImage = canvas.toDataURL("image/jpeg", 0.7); // Compress to 70%
-                    setPreview(finalImage);
+    //                 // Determine file name based on type
+    //                 const nik = kpm?.decrypted_nik || "unknown_nik";
+    //                 const newFileName =
+    //                     type === "ktp"
+    //                         ? `ktp_${nik}.jpg`
+    //                         : `kpm_${nik}.jpg`;
 
-                    // Convert data URL to Blob
-                    const blob = dataURLtoBlob(finalImage);
+    //                 // Create new File object
+    //                 const newFile = new File([blob], newFileName, { type: "image/jpeg" });
+    //                 setFile(newFile);
+    //             };
+    //         };
+    //         reader.readAsDataURL(file);
+    //     }
+    // };
 
-                    // Determine file name based on type
-                    const nik = kpm?.decrypted_nik || "unknown_nik";
-                    const newFileName =
-                        type === "ktp"
-                            ? `ktp_${nik}.jpg`
-                            : `kpm_${nik}.jpg`;
-
-                    // Create new File object
-                    const newFile = new File([blob], newFileName, { type: "image/jpeg" });
-                    setFile(newFile);
-                };
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    // Helper function to convert data URL to Blob
-    const dataURLtoBlob = (dataURL) => {
-        const arr = dataURL.split(',');
-        const mime = arr[0].match(/:(.*?);/)[1];
-        const bstr = atob(arr[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], { type: mime });
-    };
+    // // Helper function to convert data URL to Blob
+    // const dataURLtoBlob = (dataURL) => {
+    //     const arr = dataURL.split(',');
+    //     const mime = arr[0].match(/:(.*?);/)[1];
+    //     const bstr = atob(arr[1]);
+    //     let n = bstr.length;
+    //     const u8arr = new Uint8Array(n);
+    //     while (n--) {
+    //         u8arr[n] = bstr.charCodeAt(n);
+    //     }
+    //     return new Blob([u8arr], { type: mime });
+    // };
 
     const previewStyle = {
         height: 355,
         width: 355,
     };
 
-    const handleScan = (data) => {
-        if (data) {
-            setResult(data.text);
-            fetchKPM(data.text);
-            setIsScannerVisible(false);
-        }
-    };
+    // const handleScan = (data) => {
+    //     if (data) {
+    //         setResult(data.text);
+    //         fetchKPM(data.text);
+    //         setIsScannerVisible(false);
+    //     }
+    // };
 
     const handleError = (err) => {
         console.error('Error with QR scanner: ', err);
-    };
-
-    const fetchAlokasi = async () => {
-        try {
-            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
-                headers: {
-                    Authorization: token
-                }
-            });
-            if (response.data.data.length !== 0) {
-                const datafetch = response.data.data.map(dataitem => ({
-                    value: dataitem.id_alokasi,
-                    label: `${dataitem.bulan_alokasi} ${dataitem.tahun_alokasi}`
-                }));
-                setAlokasiOption(datafetch);
-            } else {
-                setAlokasiOption([]);
-            }
-        } catch (error) {
-            console.log('Error fetching alokasi: ', error);
-            setAlokasiOption([]);
-        }
-    };
-
-    useEffect(() => {
-        fetchAlokasi();
-    }, []);
-
-    const fetchKPM = async (idkpm) => {
-        console.log('Fetching KPM for ID:', idkpm);
-        try {
-            const response = await axios.get(`http://localhost:3091/api/v1/januari-kpm/kpm/${idkpm}`, {
-                headers: {
-                    Authorization: token
-                }
-            });
-            setKPM(response.data.data[0]);
-        } catch (error) {
-            console.log('Error fetching KPM: ', error);
-        }
     };
 
     const handleAlokasiChange = async (selectedOption) => {
@@ -268,57 +169,35 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
     const handleSubmit = async () => {
 
-        let today = new Date();
-        let tanggal_penyaluran = today.toISOString().split('T')[0];
-        let hours = today.getHours().toString().padStart(2, '0');
-        let minutes = today.getMinutes().toString().padStart(2, '0');
-        let waktu_penyaluran = `${hours}:${minutes}`;
-
         const formDataInsert = new FormData();
-        formDataInsert.append('id_dtt', kpm.id_dtt);
-        formDataInsert.append('id_kpm', kpm.id_kpm);
-        formDataInsert.append('jenis_penyaluran', selectedPenyaluran.value);
-        formDataInsert.append('id_user', id_user);
-        formDataInsert.append('tanggal_penyaluran', tanggal_penyaluran);
-        formDataInsert.append('waktu_penyaluran', waktu_penyaluran);
-        formDataInsert.append('nik_perwakilan', formData.nik_perwakilan);
-        formDataInsert.append('nama_perwakilan', formData.nama_perwakilan);
-        formDataInsert.append('alamat_perwakilan', formData.alamat_perwakilan);
-        formDataInsert.append('nik_pengganti', formData.nik_pengganti);
-        formDataInsert.append('nama_pengganti', formData.nama_pengganti);
-        formDataInsert.append('alamat_pengganti', formData.alamat_pengganti);
-        formDataInsert.append('keterangan_perwakilan', formData.keterangan_perwakilan);
-        formDataInsert.append('keterangan_pergantian', formData.keterangan_pergantian);
-        formDataInsert.append('file_ktp', fileKTP);
-        formDataInsert.append('file_kpm', fileKPM);
+        formDataInsert.append('id_kantor', id_kantor);
+        formDataInsert.append('nomor_lo', "NOMORLO");
+        formDataInsert.append('tanggal_lo', formData.tanggal_lo);
+        formDataInsert.append('titik_muat', formData.titik_muat);
+        formDataInsert.append('jenis_mobil', formData.jenis_mobil);
+        formDataInsert.append('nopol_mobil', formData.nopol_mobil);
+        formDataInsert.append('nama_driver', formData.nama_driver);
+        formDataInsert.append('telpon_driver', formData.telpon_driver);
+        formDataInsert.append('file_lo', "pasar.pdf");
+        formDataInsert.append('status_lo', "DIBUAT");
 
-        const result = await axios.post(`http://localhost:3091/api/v1/januari-penyaluran`, formDataInsert, {
-            headers: {
-                'Authorization': token,
-                'Content-Type': 'multipart/form-data',
-            }
-        });
-        if (selectedPenyaluran.value == "Pengganti") {
-            const dataToSubmit = {
-                ...formDataSPTJM,
-                id_penyaluran: result.data.result,
-                kode_sptjm: `SPTJM-${kpm.kode_dtt}`
-            };
-            await axios.post(`http://localhost:3091/api/v1/januari-sptjm`, dataToSubmit, {
-                headers: {
-                    'Authorization': token,
-                }
-            });
-        }
-        Swal.fire({
-            title: 'Data Penyaluran',
-            text: 'Data Berhasil Ditambahkan',
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 2000,
-        }).then(() => {
-            handleBackClick();
-        });
+        console.log([...formDataInsert.entries()]);
+
+        // const result = await axios.post(`http://localhost:3091/api/v1/lo`, formDataInsert, {
+        //     headers: {
+        //         'Authorization': token,
+        //         'Content-Type': 'multipart/form-data',
+        //     }
+        // });
+        // Swal.fire({
+        //     title: 'Data Penyaluran',
+        //     text: 'Data Berhasil Ditambahkan',
+        //     icon: 'success',
+        //     showConfirmButton: false,
+        //     timer: 2000,
+        // }).then(() => {
+        //     // handleBackClick();
+        // });
     };
 
     return (

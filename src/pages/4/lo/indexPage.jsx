@@ -30,9 +30,14 @@ const IndexPage = () => {
         status_lo: ""
     });
     const [tempFilters, setTempFilters] = useState(filters);
-
     const [currentView, setCurrentView] = useState('index');
     const [detailId, setDetailId] = useState(null);
+    const [alokasiInit, setAlokasiInit] = useState(null);
+
+    const [isScannerVisible, setIsScannerVisible] = useState(false);
+    const [result, setResult] = useState("");
+
+    const [dtt, setIDDTT] = useState(0);
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -177,21 +182,29 @@ const IndexPage = () => {
 
     useEffect(() => {
         loadData(currentPage);
-    }, [currentPage, limit]);
+    }, [currentPage, limit, dtt]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
     const handleDetailClick = (row) => {
-        if (row.id_lo !== null) {
-            setDetailId(row.id_lo);
+        if (row.id_rencana_salur !== null) {
+            setDetailId(row.id_rencana_salur);
+            setAlokasiInit(row.id_alokasi)
             setCurrentView('detail');
         }
     };
 
     const handleAddClick = () => setCurrentView('add');
 
+    const handlePageChanges = (page, id = null, idalokasi) => {
+        if (id !== null) {
+            setDetailId(id);
+            setAlokasiInit(idalokasi)
+        }
+        setCurrentView(page);
+    };
 
     const handleBackClick = () => {
         setCurrentView("index");
@@ -294,6 +307,18 @@ const IndexPage = () => {
                                 </div>
                             </div>
                         </div>
+                        {isScannerVisible && (
+                            <div className="row">
+                                <div className="col-md-3 col-sm-12">
+                                    <QrScanner
+                                        delay={300}
+                                        style={previewStyle}
+                                        onError={handleError}
+                                        onScan={handleScan}
+                                    />
+                                </div>
+                            </div>
+                        )}
                         <div className="col-lg-12 mt-3">
                             <DataTable
                                 columns={columns}
@@ -315,7 +340,7 @@ const IndexPage = () => {
                 </>
             )}
             {currentView === 'add' && <AddPage handlePageChanges={handlePageChanges} handleBackClick={handleBackClick} />}
-            {currentView === 'detail' && <DetailPage handlePageChanges={handlePageChanges} detailId={detailId} handleBackClick={handleBackClick} />}
+            {currentView === 'detail' && <DetailPage handlePageChanges={handlePageChanges} detailId={detailId} handleBackClick={handleBackClick} alokasiInit={alokasiInit} />}
         </div>
     );
 };
