@@ -1,0 +1,203 @@
+[{
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/7/dashboard",
+            "roles": ["7"]
+        }]
+    },
+    {
+        "header": "Driver",
+        "items": [{
+            "text": "Driver",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/7/driver",
+            "roles": ["7"]
+        }]
+    },
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/9/dashboard",
+            "roles": ["9"]
+        }]
+    },
+    {
+        "header": "Customer",
+        "items": [{
+            "text": "Customer",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/9/customer",
+            "roles": ["9"]
+        }]
+    },
+    {
+        "header": "Armada dan Driver",
+        "items": [{
+                "text": "Armada",
+                "icon": "bx bx-file",
+                "available": true,
+                "link": "/9/armada",
+                "roles": ["9"]
+            },
+            {
+                "text": "Driver",
+                "icon": "bx bx-file",
+                "available": true,
+                "link": "/9/driver",
+                "roles": ["9"]
+            }
+        ]
+    },
+    {
+        "header": "Purchase Order",
+        "items": [{
+            "text": "Purchase Order",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/9/po",
+            "roles": ["9"]
+        }]
+    },
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/10/dashboard",
+            "roles": ["10"]
+        }]
+    },
+    {
+        "header": "PO dan Kas Jalan",
+        "items": [{
+            "text": "PO dan Kas Jalan",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/10/po",
+            "roles": ["10"]
+        }]
+    },
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/12/dashboard",
+            "roles": ["12"]
+        }]
+    },
+    {
+        "header": "Armada dan Maintenece",
+        "items": [{
+            "text": "Armada",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/12/armada",
+            "roles": ["12"]
+        },
+        {
+            "text": "Checkup Armada",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/12/checkup",
+            "roles": ["12"]
+        }]
+    },
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/1/dashboard",
+            "roles": ["1"]
+        }]
+    },
+    {
+        "header": "Armada",
+        "items": [{
+            "text": "Armada",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/1/dev",
+            "roles": ["1"]
+        }]
+    },
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/8/dashboard",
+            "roles": ["8"]
+        }]
+    },
+    {
+        "header": "Cicilan Armada",
+        "items": [{
+            "text": "Cicilan",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/8/keuangan",
+            "roles": ["8"]
+        },
+        {
+            "text": "Riwayat Cicilan",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/8/riwayatcicilan",
+            "roles": ["8"]
+        }]
+    },
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/13/dashboard",
+            "roles": ["13"]
+        }]
+    },
+    {
+        "header": "PO",
+        "items": [{
+            "text": "PO",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/13/po",
+            "roles": ["13"]
+        }]
+    },
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/14/dashboard",
+            "roles": ["14"]
+        }]
+    },
+    {
+        "header": "Armada",
+        "items": [{
+            "text": "Ketersediaan Armada",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/14/armada",
+            "roles": ["14"]
+        }]
+    }
+]

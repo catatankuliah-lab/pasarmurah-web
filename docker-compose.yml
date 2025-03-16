@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173" # Map port Vite di container ke host
+    volumes:
+      - .:/app # Sinkronisasi file lokal dengan container
+      - /app/node_modules # Menghindari konflik node_modules
+    stdin_open: true
+    tty: true
