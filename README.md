@@ -10,12 +10,12 @@
 
 1. Clone the repository: 
    ```
-   git clone https://github.com/catatankuliah-lab/aws-kasma-web.git
+   git clone https://github.com/catatankuliah-lab/pasarmurah-web.git
    ```
 
 2. Change directory: 
    ```
-   cd aws-kasma-web
+   cd pasarmurah-web
    ```
 
 3. Install dependencies:
