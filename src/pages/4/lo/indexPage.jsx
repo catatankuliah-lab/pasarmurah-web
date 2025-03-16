@@ -30,16 +30,9 @@ const IndexPage = () => {
         status_lo: ""
     });
     const [tempFilters, setTempFilters] = useState(filters);
-    const [alokasiOption, setAlokasiOption] = useState([]);
-    const [selectedAlokasi, setSelectedAlokasi] = useState(null);
+
     const [currentView, setCurrentView] = useState('index');
     const [detailId, setDetailId] = useState(null);
-    const [alokasiInit, setAlokasiInit] = useState(null);
-
-    const [isScannerVisible, setIsScannerVisible] = useState(false);
-    const [result, setResult] = useState("");
-
-    const [dtt, setIDDTT] = useState(0);
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -55,34 +48,53 @@ const IndexPage = () => {
             width: "50px",
         },
         {
+            name: "Nama Kantor",
+            selector: (row) => row.nama_kantor,
+            sortable: true,
+            width: "200px",
+        },
+        {
             name: "Nomor LO",
-            selector: (row) => row.decrypted_nik,
+            selector: (row) => row.nomor_lo,
             sortable: true,
             width: "200px",
         },
         {
             name: "Tanggal LO",
-            selector: (row) => row.nama_lengkap,
+            selector: (row) => row.tanggal_lo,
             sortable: true,
             width: "200px",
         },
         {
             name: "Titik Muat",
-            selector: (row) => row.nama_provinsi,
+            selector: (row) => row.titik_muat,
             sortable: true,
             width: "200px",
         },
         {
             name: "Nopol Mobil",
-            selector: (row) => row.nama_kabupaten_kota,
+            selector: (row) => row.nopol_mobil,
             sortable: true,
             width: "200px",
         },
         {
             name: "Nama Driver",
-            selector: (row) => row.nama_kecamatan,
+            selector: (row) => row.nama_driver,
             sortable: true,
             width: "200px",
+        },
+        {
+            name: "",
+            selector: (row) => (
+                <button onClick={() => handleDetailClick(row)} className="btn btn-link">
+                    <i className="bx bx-zoom-in text-priamry"></i>
+                </button>
+            ),
+            sortable: false,
+            width: "100px",
+            style: {
+                textAlign: "center",
+            },
         },
     ];
 
@@ -113,91 +125,34 @@ const IndexPage = () => {
     };
     useEffect(() => {
         const filtered = data.filter((item) => {
-            const matchNomorLO = item.nomor_po.toLowerCase().includes(filters.nomor_po.toLowerCase());
-            const matchCustomer = item.nama_customer.toLowerCase().includes(filters.customer.toLowerCase());
-            const matchNopolArmada = item.nopol_armada.toLowerCase().includes(filters.nopol_armada.toLowerCase());
+            const matchNomorLO = item.nomor_lo.toLowerCase().includes(filters.nomor_lo.toLowerCase());
+            const matchMuat = item.titik_muat.toLowerCase().includes(filters.titik_muat.toLowerCase());
+            const matchNopolDriver = item.nopol_mobil.toLowerCase().includes(filters.nopol_mobil.toLowerCase());
             const matchNamaDriver = item.nama_driver.toLowerCase().includes(filters.nama_driver.toLowerCase());
-            const matchStatusPO = item.status_po.toLowerCase().includes(filters.status_po.toLowerCase());
-
             const itemDate = new Date(item.tanggal_po);
             const startDate = filters.startDate ? new Date(filters.startDate) : null;
             const endDate = filters.endDate ? new Date(filters.endDate) : null;
 
             const matchDate = (!startDate || itemDate >= startDate) && (!endDate || itemDate <= endDate);
 
-            return matchNomorLO && matchCustomer && matchNopolArmada && matchNamaDriver && matchDate && matchStatusPO;
+            return matchNomorLO && matchMuat && matchNopolDriver && matchNamaDriver && matchDate;
         });
 
         setFilteredData(filtered);
     }, [filters, data]);
 
-    const fetchAlokasi = async () => {
-        if (!token) {
-            navigate('/');
-        }
-        try {
-            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
-                headers: {
-                    Authorization: token
-                }
-            });
-            if (response.data.data.length != 0) {
-                const datafetch = response.data.data.map(dataitem => ({
-                    value: dataitem.id_alokasi,
-                    label: dataitem.bulan_alokasi + " " + dataitem.tahun_alokasi
-                }));
-                setAlokasiOption(datafetch);
-            } else {
-                setAlokasiOption([]);
-            }
-        } catch (error) {
-            console.log(error);
-            Swal.fire({
-                title: 'Data Alokasi',
-                text: 'Data Alokasi Tidak Ditemukan',
-                icon: 'error',
-                showConfirmButton: false,
-                timer: 2000,
-                position: 'center',
-                timerProgressBar: true
-            });
-            setAlokasiOption([]);
-        }
-    };
 
-    useEffect(() => {
-        // fetchAlokasi();
-    }, []);
 
     const previewStyle = {
         height: 355,
         width: 355,
     };
 
-    const handleScan = async (data) => {
-        if (data) {
-            setResult(data.text);
-            setIsScannerVisible(false);
-            console.log(data.text);
-            const response = await axios.get(`http://localhost:3091/api/v1/januari-dtt/kode-dtt/${data.text}`, {
-                headers: {
-                    Authorization: token
-                }
-            });
-            setIDDTT(response.data.data.id_dtt)
-            console.log(response.data.data.id_dtt);
-        }
-    };
-
-    const handleError = (err) => {
-        console.error('Error with QR scanner: ', err);
-    };
-
     const loadData = async (page) => {
         setLoading(true);
         try {
             const response = await axios.get(
-                `http://localhost:3091/api/v1/januari-kpm/dtt/${dtt}`,
+                `http://localhost:3091/api/v1/lo/kantor/${id_kantor}`,
                 {
                     headers: {
                         Authorization: token,
@@ -222,38 +177,26 @@ const IndexPage = () => {
 
     useEffect(() => {
         loadData(currentPage);
-    }, [currentPage, limit, dtt]);
+    }, [currentPage, limit]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
     const handleDetailClick = (row) => {
-        if (row.id_rencana_salur !== null) {
-            setDetailId(row.id_rencana_salur);
-            setAlokasiInit(row.id_alokasi)
+        if (row.id_lo !== null) {
+            setDetailId(row.id_lo);
             setCurrentView('detail');
         }
     };
 
     const handleAddClick = () => setCurrentView('add');
 
-    const handlePageChanges = (page, id = null, idalokasi) => {
-        if (id !== null) {
-            setDetailId(id);
-            setAlokasiInit(idalokasi)
-        }
-        setCurrentView(page);
-    };
 
     const handleBackClick = () => {
         setCurrentView("index");
     };
 
-    const handleAlokasiChange = async (selectedOption) => {
-        setSelectedAlokasi(selectedOption);
-        setIsScannerVisible(true);
-    };
 
     return (
         <div>
@@ -291,16 +234,8 @@ const IndexPage = () => {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={tempFilters.nomor_po}
-                                        onChange={(e) => setTempFilters({ ...tempFilters, nomor_po: e.target.value })}
-                                    />
-                                </div>
-                                <div className="col-md-3 col-sm-12 mb-3">
-                                    <label htmlFor="" className="form-label">Customer</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={tempFilters.customer}onChange={(e) => setTempFilters({ ...tempFilters, nama_customer: e.target.value })}
+                                        value={tempFilters.nomor_lo}
+                                        onChange={(e) => setTempFilters({ ...tempFilters, nomor_lo: e.target.value })}
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
@@ -322,12 +257,21 @@ const IndexPage = () => {
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
-                                    <label htmlFor="" className="form-label">Nopol Armada</label>
+                                    <label htmlFor="" className="form-label">Titik Muat</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={tempFilters.nopol_armada}
-                                        onChange={(e) => setTempFilters({ ...tempFilters, nopol_armada: e.target.value })}
+                                        value={tempFilters.titik_muat}
+                                        onChange={(e) => setTempFilters({ ...tempFilters, titik_muat: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-md-3 col-sm-12 mb-3">
+                                    <label htmlFor="" className="form-label">Nopol Mobil</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={tempFilters.nopol_mobil}
+                                        onChange={(e) => setTempFilters({ ...tempFilters, nopol_mobil: e.target.value })}
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
@@ -337,15 +281,6 @@ const IndexPage = () => {
                                         className="form-control"
                                         value={tempFilters.nama_driver}
                                         onChange={(e) => setTempFilters({ ...tempFilters, nama_driver: e.target.value })}
-                                    />
-                                </div>
-                                <div className="col-md-3 col-sm-12 mb-3">
-                                    <label htmlFor="" className="form-label">Status PO</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={tempFilters.status_po}
-                                        onChange={(e) => setTempFilters({ ...tempFilters, status_po: e.target.value })}
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
@@ -359,18 +294,6 @@ const IndexPage = () => {
                                 </div>
                             </div>
                         </div>
-                        {isScannerVisible && (
-                            <div className="row">
-                                <div className="col-md-3 col-sm-12">
-                                    <QrScanner
-                                        delay={300}
-                                        style={previewStyle}
-                                        onError={handleError}
-                                        onScan={handleScan}
-                                    />
-                                </div>
-                            </div>
-                        )}
                         <div className="col-lg-12 mt-3">
                             <DataTable
                                 columns={columns}
@@ -392,7 +315,7 @@ const IndexPage = () => {
                 </>
             )}
             {currentView === 'add' && <AddPage handlePageChanges={handlePageChanges} handleBackClick={handleBackClick} />}
-            {currentView === 'detail' && <DetailPage handlePageChanges={handlePageChanges} detailId={detailId} handleBackClick={handleBackClick} alokasiInit={alokasiInit} />}
+            {currentView === 'detail' && <DetailPage handlePageChanges={handlePageChanges} detailId={detailId} handleBackClick={handleBackClick} />}
         </div>
     );
 };

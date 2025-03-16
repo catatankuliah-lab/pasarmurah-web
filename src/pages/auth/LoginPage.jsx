@@ -25,6 +25,7 @@ const LoginPage = () => {
             console.log(response.data);
             const id_role = response.data.data.id_role;
             const id_user = response.data.data.id_user;
+            const id_kantor = response.data.data.id_kantor;
             const token = response.data.token;
             localStorage.setItem('id_role', id_role);
             localStorage.setItem('id_user', id_user);
@@ -61,7 +62,7 @@ const LoginPage = () => {
     return (
         <AuthWrapper>
             <h4 className="mb-2">Login !</h4>
-            <p className="mt-3">Sistem Infomasi Operasional</p>
+            <p className="mt-3">Operasi Pasar Murah</p>
             <p className="mb-4 fw-bold" style={{ marginTop: "-10px" }} ><span style={{ color: "rgb(233,80,28)" }}>PT Delapan Delapan</span> <span style={{ color: "rgb(8,96,237)" }}> Logistics</span></p>
             <form className="mb-3">
                 <div className="mb-3">
