@@ -182,18 +182,17 @@ const IndexPage = () => {
 
     useEffect(() => {
         loadData(currentPage);
-    }, [currentPage, limit, dtt]);
+    }, [currentPage, limit]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
     const handleDetailClick = (row) => {
-        if (row.id_rencana_salur !== null) {
-            setDetailId(row.id_rencana_salur);
-            setAlokasiInit(row.id_alokasi)
+
+            setDetailId(row.id_lo);
             setCurrentView('detail');
-        }
+        
     };
 
     const handleAddClick = () => setCurrentView('add');

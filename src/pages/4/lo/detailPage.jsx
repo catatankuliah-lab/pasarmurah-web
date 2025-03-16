@@ -20,6 +20,30 @@ const DetailPage = ({
   const id_user = localStorage.getItem("id_user");
   const nama_kantor = localStorage.getItem("nama_kantor");
 
+  const [formData, setFormData] = useState({
+    id_kantor: "",
+    nomor_lo: "",
+    tanggal_lo: "",
+    titik_muat: "",
+    jenis_mobil: "",
+    nopol_mobil: "",
+    nama_driver: "",
+    telpon_driver: "",
+    file_lo: "",
+    status_lo: "",
+  });
+
+  const [formDataMuatan, setFormDataMuatan] = useState({
+    id_item_lo: "",
+    id_lo: "",
+    id_kabupaten_kota: "",
+    titik_bongkar: "",
+    beras: "",
+    minyak: "",
+    terigu: "",
+    gula: "",
+  });
+
   const [ietmRencanaSalur, setIetmRencanaSalur] = useState([]);
 
   const [alokasiOption, setAlokasiOption] = useState([]);
@@ -41,311 +65,203 @@ const DetailPage = ({
   const [selectedGudang, setSelectedGudang] = useState(null);
 
   const [dtt, setDTT] = useState(0);
-
-  const fetchItemRencanaSalur = async () => {
-    if (!token) {
-      navigate("/");
+  const [lo, setLO] = useState(null);
+  useEffect(() => {
+    const fetchLO = async () => {
+      console.log(detailId);
+      try {
+        const response = await axios.get(`http://localhost:3091/api/v1/lo/${detailId}`,
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        );
+        setLO(response.data.data);
+      } catch (error) {
+        console.log(error);
+        setLO([]);
+      }
+    };
+    if (detailId) {
+      fetchLO();
+      fetchKabupaten();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailId]);
+  useEffect(() => {
+    if (lo) {
+      setFormData((prevData) => ({
+        ...prevData,
+        nomor_lo: lo.nomor_lo || prevData.nomor_lo,
+        tanggal_lo: lo.tanggal_lo || prevData.tanggal_lo,
+        titik_muat: lo.titik_muat || prevData.titik_muat,
+        jenis_mobil: lo.jenis_mobil || prevData.jenis_mobil,
+        nopol_mobil: lo.nopol_mobil || prevData.nopol_mobil,
+        nama_driver: lo.nama_driver || prevData.nama_driver,
+        telpon_driver: lo.telpon_driver || prevData.telpon_driver,
+      }));
+    }
+  }, [lo]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleUpdate = async (event) => {
+    event.preventDefault();
+    const dataLOtoSubmit = new FormData();
+    dataLOtoSubmit.append("id_kantor", id_kantor);
+    dataLOtoSubmit.append("nomor_lo", formData.nomor_lo);
+    dataLOtoSubmit.append("tanggal_lo", formData.tanggal_lo);
+    dataLOtoSubmit.append("titik_muat", formData.titik_muat);
+    dataLOtoSubmit.append("jenis_mobil", formData.jenis_mobil);
+    dataLOtoSubmit.append("nopol_mobil", formData.nopol_mobil);
+    dataLOtoSubmit.append("nama_driver", formData.nama_driver);
+    dataLOtoSubmit.append("telpon_driver", formData.telpon_driver);
+    dataLOtoSubmit.append("file_lo", "pasar.pdf");
+    dataLOtoSubmit.append("status_lo", "DIBUAT");
     try {
-      const response = await axios.get(
-        `http://localhost:3091/api/v1/januari-item-rencana-salur/rencana-salur/${detailId}`,
+      await axios.put(
+        `http://localhost:3091/api/v1/lo/${detailId}`,
+        dataLOtoSubmit,
         {
           headers: {
             Authorization: token,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
+      Swal.fire({
+        title: "Data LO",
+        text: "Data Berhasil Diperbaharui",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 2000,
+      }).then(() => {
+        handleBackClick();
+      });
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Gagal memperbarui data. Silakan coba lagi.",
+        icon: "error",
+        showConfirmButton: true,
+      });
+    }
+  };
+  const [muatan, setMuatan] = useState([]);
+  const [muatanOption, setMuatanOption] = useState([]);
+  const [selectedMuatan, setSelectedMuatan] = useState(null);
+  const fetchKabupaten = async () => {
+    try {
+      const response = await axios.get('http://localhost:3091/api/v1/kabupaten-kota', {
+        headers: {
+          Authorization: token
+        }
+      });
       if (response.data.data.length != 0) {
-        const datafetch = response.data.data.map((dataitem) => ({
-          id_item_rencana_salur: dataitem.id_item_rencana_salur,
-          id_rencana_salur: dataitem.id_rencana_salur,
-          id_alokasi: dataitem.id_alokasi,
-          id_gudang: dataitem.id_gudang,
-          id_dtt: dataitem.id_dtt,
-          tanggal_rencana_salur: dataitem.tanggal_rencana_salur,
-          bulan_alokasi: dataitem.bulan_alokasi,
-          tahun_alokasi: dataitem.tahun_alokasi,
-          nama_gudang: dataitem.nama_gudang,
-          kode_dtt: dataitem.kode_dtt,
-          kode_rencana_salur: dataitem.kode_rencana_salur,
-          status_dtt: dataitem.status_dtt,
-          nama_desa_kelurahan: dataitem.nama_desa_kelurahan,
-          nama_kecamatan: dataitem.nama_kecamatan,
-          nama_kabupaten_kota: dataitem.nama_kabupaten_kota,
-          nama_provinsi: dataitem.nama_provinsi,
-          kpm_jumlah: dataitem.kpm_jumlah,
+        const datafetch = response.data.data.map(dataitem => ({
+          value: dataitem.id_kabupaten_kota,
+          label: dataitem.nama_kabupaten_kota,
         }));
-        setIetmRencanaSalur(datafetch);
+        setMuatanOption(datafetch);
       } else {
-        setIetmRencanaSalur([]);
+        setMuatanOption([]);
       }
     } catch (error) {
       console.log(error);
-      setIetmRencanaSalur([]);
+      setMuatanOption([]);
     }
   };
-
-  useEffect(() => {
-    fetchItemRencanaSalur();
-  }, [token, detailId]);
-
-  useEffect(() => {
-    const fetchAlokasi = async () => {
-      if (!token) {
-        navigate("/");
-      }
-      try {
-        const response = await axios.get("http://localhost:3091/api/v1/alokasi", {
-          headers: {
-            Authorization: token,
-          },
-        });
-        if (response.data.data.length != 0) {
-          const datafetch = response.data.data.map((dataitem) => ({
-            value: dataitem.id_alokasi,
-            label: dataitem.bulan_alokasi + " " + dataitem.tahun_alokasi,
-          }));
-          setAlokasiOption(datafetch);
-        } else {
-          setAlokasiOption([]);
-        }
-      } catch (error) {
-        console.log(error);
-        Swal.fire({
-          title: "Data Alokasi",
-          text: "Data Alokasi Tidak Ditemukan",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 2000,
-          position: "center",
-          timerProgressBar: true,
-        });
-        setAlokasiOption([]);
-      }
-    };
-    fetchAlokasi();
-  }, [token]);
-
-  useEffect(() => {
-    if (alokasiOption.length > 0 && alokasiInit) {
-      const initialValue =
-        alokasiOption.find((option) => option.value === alokasiInit) || null;
-      setSelectedAlokasi(initialValue);
-    }
-  }, [alokasiOption, alokasiInit]);
-
-  const handleAlokasiChange = (selectedOption) => {
-    setSelectedAlokasi(selectedOption);
+  const handleMuatanChange = (selectedOption) => {
+    setSelectedMuatan(selectedOption);
+    setFormData((prevData) => ({
+      ...prevData,
+      id_kabupaten_kota: selectedOption.value
+    }));
   };
 
-  useEffect(() => {
+  const handleChangeQuillMuatan = (value) => {
+    setFormDataMuatan((prevData) => ({
+      ...prevData,
+      titik_bongkar: value,
+    }));
+  };
+
+  const fetchItemLO = async () => {
     if (!token) {
-      navigate("/");
+      navigate('/');
     }
-    const fetchProvinsiOptions = async () => {
-      try {
-        const response = await axios.get("http://localhost:3091/api/v1/provinsi", {
-          headers: {
-            Authorization: token,
-          },
-        });
-        const dataprovinsi = response.data.data.map((provinsiall) => ({
-          value: provinsiall.id_provinsi,
-          label: provinsiall.nama_provinsi,
+    try {
+      const response = await axios.get(`http://localhost:3091/api/v1/titikbongkar/po/${detailId}`, {
+        headers: {
+          Authorization: token
+        }
+      });
+      if (response.data.data.length !== 0) {
+        const datafetch = response.data.data.map(dataitem => ({
+          id_kabupaten_kota: dataitem.id_kabupaten_kota,
+          titik_bongkar: dataitem.titik_bongkar,
+          beras: dataitem.beras,
+          minyak: dataitem.minyak,
+          terigu: dataitem.terigu,
+          gula: dataitem.gula
         }));
-        setProvinsiOption(dataprovinsi);
-      } catch (error) {
-        console.error("Error fetching", error);
+        setMuatan(datafetch);
+      } else {
+        setMuatan([]);
       }
-    };
-    fetchProvinsiOptions();
-  }, []);
-
-  const handleProvinsiChange = (selectedOption) => {
-    setSelectedProvinsi(selectedOption);
+    } catch (error) {
+      console.log(error);
+      setMuatan([]);
+    }
   };
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-    const fetchKabupatenOptions = async (provinsiID) => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3091/api/v1/kabupatenkota/${provinsiID.value}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        const datakabupatenkota = response.data.data.map(
-          (kabupatenkotaall) => ({
-            value: kabupatenkotaall.id_kabupaten_kota,
-            label: kabupatenkotaall.nama_kabupaten_kota,
-          })
-        );
-        setKabupatenOption(datakabupatenkota);
-      } catch (error) {
-        console.error("Error fetching", error);
-      }
-    };
-    if (selectedProvinsi) {
-      fetchKabupatenOptions(selectedProvinsi);
-    }
-  }, [selectedProvinsi]);
-
-  const handleKabupatenChange = (selectedOption) => {
-    setSelectedKabupaten(selectedOption);
-  };
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-    const fetchKecamatanOptions = async (kabupatenID) => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3091/api/v1/kecamatan/${kabupatenID.value}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        const datakecamatan = response.data.data.map((kecamatanall) => ({
-          value: kecamatanall.id_kecamatan,
-          label: kecamatanall.nama_kecamatan,
-        }));
-        setKecamatanOption(datakecamatan);
-      } catch (error) {
-        console.error("Error fetching", error);
-      }
-    };
-    if (selectedKabupaten) {
-      fetchKecamatanOptions(selectedKabupaten);
-    }
-  }, [selectedKabupaten]);
-
-  const handleKecamatanChange = (selectedOption) => {
-    setSelectedKecamatan(selectedOption);
-  };
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-    const fetchDesaKelurahanOptions = async (kecamatanID) => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3091/api/v1/desaKelurahan/${kecamatanID.value}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        const datadesakelurahan = response.data.data.map(
-          (desakelurahanall) => ({
-            value: desakelurahanall.id_desa_kelurahan,
-            label: desakelurahanall.nama_desa_kelurahan,
-          })
-        );
-        setDesaKelurahanOption(datadesakelurahan);
-      } catch (error) {
-        console.error("Error fetching", error);
-        setDesaKelurahanOption([]);
-      }
-    };
-    if (selectedKecamatan) {
-      fetchDesaKelurahanOptions(selectedKecamatan);
-    }
-  }, [selectedKecamatan]);
-
-  const handleDesaKelurahanChange = (selectedOption) => {
-    setSelectedDesaKelurahan(selectedOption);
-  };
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-    const fetchGudang = async () => {
-      try {
-        const response = await axios.get("http://localhost:3091/api/v1/gudang", {
+  const handleUpdateMuatan = async (event) => {
+    event.preventDefault();
+    const dataMuatantoSubmit = new FormData();
+    dataMuatantoSubmit.append("id_lo", detailId);
+    dataMuatantoSubmit.append("id_kabupaten_kota", selectedMuatan?.value || "");
+    dataMuatantoSubmit.append("titik_bongkar", formDataMuatan.titik_bongkar || "");
+    dataMuatantoSubmit.append("beras", formDataMuatan.beras || "");
+    dataMuatantoSubmit.append("minyak", formDataMuatan.minyak || "");
+    dataMuatantoSubmit.append("terigu", formDataMuatan.terigu || "");
+    dataMuatantoSubmit.append("gula", formDataMuatan.gula || "");
+    console.log([...dataMuatantoSubmit.entries()]);
+    try {
+      await axios.post(
+        `http://localhost:3090/api/v1/titikbongkar`,
+        dataMuatantoSubmit,
+        {
           headers: {
             Authorization: token,
+            "Content-Type": "multipart/form-data",
           },
-        });
-        if (response.data.data.length != 0) {
-          const datafetch = response.data.data.map((dataitem) => ({
-            value: dataitem.id_gudang,
-            label: dataitem.nama_gudang,
-          }));
-          setGudangOption(datafetch);
-        } else {
-          setGudangOption([]);
         }
-      } catch (error) {
-        console.log(error);
-        setGudangOption([]);
-      }
-    };
-    fetchGudang();
-  }, [token]);
-
-  const handleGudangChange = (selectedOption) => {
-    setSelectedGudang(selectedOption);
-  };
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
+      );
+      Swal.fire({
+        title: "Data Titik Bongkar",
+        text: "Data Berhasil Diperbaharui",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 2000,
+      }).then(() => {
+        fetchTitikBongkar();
+      });
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Gagal memperbarui data. Silakan coba lagi.",
+        icon: "error",
+        showConfirmButton: true,
+      });
     }
-    const fetchDTT = async (desaKelurahanID) => {
-      try {
-        let linkdtt = "januari-dtt";
-        if (selectedAlokasi.value == "1") {
-          linkdtt = "januari-dtt";
-        } else if (selectedAlokasi.value == "2") {
-          linkdtt = "februari-dtt";
-        } else {
-          linkdtt = "januari-dtt";
-        }
-        const response = await axios.get(
-          `http://localhost:3091/api/v1/${linkdtt}/desakelurahan/${desaKelurahanID.value}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        setDTT(response.data.data.kpm_jumlah);
-      } catch (error) {
-        console.error("Error fetching", error);
-        setDTT(null);
-      }
-    };
-    if (selectedDesaKelurahan) {
-      fetchDTT(selectedDesaKelurahan);
-    }
-  }, [selectedDesaKelurahan]);
-
-  const [formDataRencanaSalur, setFormDataRencanaSalur] = useState({
-    id_rencana_salur: "",
-    id_alokasi: "",
-    id_gudang: "",
-    id_dtt: "",
-    tanggal_rencana_salur: "",
-    kategori: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormDataRencanaSalur({
-      ...formDataRencanaSalur,
-      [name]: value,
-    });
   };
 
   const handleAdd = async (event) => {
@@ -689,7 +605,7 @@ const DetailPage = ({
           <div className="divider text-start fw-bold">
             <div className="divider-text">
               <span className="menu-header-text fs-6">
-                Detail Rencana Salur
+                Detail LO
               </span>
             </div>
           </div>
@@ -704,149 +620,61 @@ const DetailPage = ({
           >
             disini
           </button>{" "}
-          untuk kembali ke menu utama Rencana Salur.
+          untuk kembali ke menu utama LO.
         </div>
       </div>
       <div className="col-md-12 mt-3">
         <div className="row">
-          <div className="col-md-3 col-sm-12 mb-3">
-            <label htmlFor="nama_kantor" className="form-label">
-              Kantor Cabang
-            </label>
-            <input
-              className="form-control"
-              type="text"
-              id="nama_kantor"
-              name="nama_kantor"
-              placeholder="Kantor Cabang"
-              value={nama_kantor}
-              required
-              readOnly
-            />
-          </div>
-          <div className="col-md-3 col-sm-12 col-sm-12 mb-3">
-            <label htmlFor="id_alokasi" className="form-label">
-              Status Alokasi
-            </label>
-            <Select
-              id="id_alokasi"
-              name="id_alokasi"
-              value={selectedAlokasi}
-              onChange={handleAlokasiChange}
-              options={alokasiOption}
-              placeholder="Pilih Alokasi"
-              required
-            />
-          </div>
-          <div className="col-md-3 col-sm-12 col-sm-12 mb-3">
-            <label htmlFor="id_provinsi" className="form-label">
-              Provinsi
-            </label>
-            <Select
-              id="id_provinsi"
-              name="id_provinsi"
-              value={selectedProvinsi}
-              onChange={handleProvinsiChange}
-              options={provinsiOption}
-              placeholder="Pilih Provinsi"
-              required
-            />
-          </div>
-          <div className="col-md-3 col-sm-12 col-sm-12 mb-3">
-            <label htmlFor="id_kabupaten_kota" className="form-label">
-              Kabupaten/Kota
-            </label>
-            <Select
-              id="id_kabupaten_kota"
-              name="id_kabupaten_kota"
-              value={selectedKabupaten}
-              onChange={handleKabupatenChange}
-              options={kabupatenOption}
-              placeholder="Pilih Kabupaten/Kota"
-              required
-            />
-          </div>
-          <div className="col-md-3 col-sm-12 col-sm-12 mb-3">
-            <label htmlFor="id_kecamatan" className="form-label">
-              Kecamatan
-            </label>
-            <Select
-              id="id_kecamatan"
-              name="id_kecamatan"
-              value={selectedKecamatan}
-              onChange={handleKecamatanChange}
-              options={kecamatanOption}
-              placeholder="Pilih Kecamatan"
-              required
-            />
-          </div>
-          <div className="col-md-3 col-sm-12 col-sm-12 mb-3">
-            <label htmlFor="id_dtt" className="form-label">
-              Desa/Kelurahan
-            </label>
-            <Select
-              id="id_dtt"
-              name="id_dtt"
-              value={selectedDesaKelurahan}
-              onChange={handleDesaKelurahanChange}
-              options={desaKelurahanOption}
-              placeholder="Pilih Desa/Kelurahan"
-              required
-            />
+          <div className="col-lg-12">
+            <div className="mb-3">
+              <div className="divider text-start">
+                <div className="divider-text">
+                  <span className="menu-header-text fs-6">Informasi LO</span>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="col-md-3 col-sm-12 mb-3">
-            <label htmlFor="kpm_jumlah" className="form-label">
-              Jumlah KPM
-            </label>
-            <input
-              className="form-control"
-              type="text"
-              id="kpm_jumlah"
-              name="kpm_jumlah"
-              placeholder="Jumlah KPM"
-              value={dtt}
-              required
-              readOnly
-            />
-          </div>
-          <div className="col-md-3 col-sm-12 col-sm-12 mb-3">
-            <label htmlFor="id_gudang" className="form-label">
-              Gudang
-            </label>
-            <Select
-              id="id_gudang"
-              name="id_gudang"
-              value={selectedGudang}
-              onChange={handleGudangChange}
-              options={gudangOption}
-              placeholder="Pilih Gudang"
-              required
-            />
+            <label htmlFor="nomor_lo" className="form-label">Nomor LO</label>
+            <input className="form-control" type="text" id="nomor_lo" name='nomor_lo' placeholder="88LOG-PO0000-000" onChange={handleChange} required readOnly value={formData.nomor_lo || ""} />
           </div>
           <div className="col-md-3 col-sm-12 mb-3">
-            <label htmlFor="tanggal_rencana_salur" className="form-label">
-              Tanggal Rencana Salur
-            </label>
-            <input
-              className="form-control text-uppercase"
-              type="date"
-              id="tanggal_rencana_salur"
-              name="tanggal_rencana_salur"
-              placeholder="Tanggal Rencana Salur"
-              onChange={handleChange}
-              required
-            />
+            <label htmlFor="tanggal_lo" className="form-label">Tanggal LO</label>
+            <input className="form-control text-uppercase" type="date" id="tanggal_lo" name='tanggal_lo' placeholder="" onChange={handleChange}
+              value={formData.tanggal_lo || ""}
+              required />
           </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="titik_muat" className="form-label">Titik Muat</label>
+            <input className="form-control" type="text" id="titik_muat" name='titik_muat' placeholder="" onChange={handleChange} required value={formData.titik_muat || ""} />
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="jenis_mobil" className="form-label">Jenis Mobil</label>
+            <input className="form-control" type="text" id="jenis_mobil" name='jenis_mobil' placeholder="" onChange={handleChange} required value={formData.jenis_mobil || ""} />
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="nopol_mobil" className="form-label">Nopol Mobil</label>
+            <input className="form-control" type="text" id="nopol_mobil" name='nopol_mobil' placeholder="" onChange={handleChange} required value={formData.nopol_mobil || ""} />
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="nama_driver" className="form-label">Nama Driver</label>
+            <input className="form-control" type="text" id="nama_driver" name='nama_driver' placeholder="" onChange={handleChange} required value={formData.nama_driver || ""} />
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="telpon_driver" className="form-label">Telpon Driver</label>
+            <input className="form-control" type="text" id="telpon_driver" name='telpon_driver' placeholder="" onChange={handleChange} required value={formData.telpon_driver || ""} />
+          </div>
+
           <div className="col-md-3 col-sm-12 mb-3">
             <label htmlFor="" className="form-label">
               Proses
             </label>
             <button
               type="button"
-              onClick={handleAdd}
+              onClick={handleUpdate}
               className="btn btn-primary w-100"
             >
-              TAMBAHKAN
+              SIMPAN PERUBAHAN
             </button>
           </div>
           <div className="col-md-3 col-sm-12 mb-3">
@@ -861,7 +689,65 @@ const DetailPage = ({
               DOWNLOAD
             </button>
           </div>
-
+          <div className='row' >
+            <div className="col-lg-12">
+              <div className="mb-3">
+                <div className="divider text-start">
+                  <div className="divider-text">
+                    <span className="menu-header-text fs-6">Rencana Muatan</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {formDataMuatan && (
+            <div className='row' >
+              <div className="col-md-3 col-sm-12 col-sm-12 mb-3">
+                <label htmlFor="id_kabupaten_kota" className="form-label">Kabupaten</label>
+                <Select
+                  id="id_kabupaten_kota"
+                  name="id_kabupaten_kota"
+                  value={selectedMuatan}
+                  onChange={handleMuatanChange}
+                  options={muatanOption}
+                  placeholder="Pilih Kabupaten"
+                  required
+                />
+              </div>
+              <div className="col-md-3 col-sm-12 mb-3">
+                <label htmlFor="Titik Bongkar" className="form-label">Titik Bongkar</label>
+                <input className="form-control text-uppercase" type="text" id="titik_bongkar" name="titik_bongkar" placeholder="titik bongkar" required value={formDataMuatan.titik_bongkar} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, titik_bongkar: e.target.value })} />
+              </div>
+              <div className="col-md-3 col-sm-12 mb-3">
+                <label htmlFor="beras" className="form-label">Beras</label>
+                <input className="form-control text-uppercase" type="text" id="beras" name="beras" placeholder="beras" required value={formDataMuatan.beras} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, beras: e.target.value })} />
+              </div>
+              <div className="col-md-3 col-sm-12 mb-3">
+                <label htmlFor="minyak" className="form-label">Minyak</label>
+                <input className="form-control text-uppercase" type="text" id="minyak" name="minyak" placeholder="Minyak" required value={formDataMuatan.minyak} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, minyak: e.target.value })} />
+              </div>
+              <div className="col-md-3 col-sm-12 mb-3">
+                <label htmlFor="terigu" className="form-label">Terigu</label>
+                <input className="form-control text-uppercase" type="text" id="terigu" name="terigu" placeholder="Terigu" required value={formDataMuatan.terigu} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, terigu: e.target.value })} />
+              </div>
+              <div className="col-md-3 col-sm-12 mb-3">
+                <label htmlFor="gula" className="form-label">Gula</label>
+                <input className="form-control text-uppercase" type="text" id="gula" name="gula" placeholder="Gula" required value={formDataMuatan.gula} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, gula: e.target.value })} />
+              </div>
+            </div>
+          )}
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="" className="form-label">
+              Proses
+            </label>
+            <button
+              type="button"
+              onClick={handleUpdateMuatan}
+              className="btn btn-primary w-100"
+            >
+              SIMPAN PERUBAHAN
+            </button>
+          </div>
           <div className="col-lg-12 mt-2">
             <div className="mb-3">
               <div className="divider text-start">
@@ -879,91 +765,36 @@ const DetailPage = ({
                 <thead>
                   <tr>
                     <th>No</th>
-                    <th>Tanggal</th>
-                    <th>Gudang Bulog</th>
-                    <th>Provinsi</th>
-                    <th>Kabupaten/Kota</th>
-                    <th>Kecamatan</th>
-                    <th>Desa/Kelurahan</th>
-                    <th>Jumlah KPM</th>
-                    <th>Jumlah Kg</th>
+                    <th>Kabupaten</th>
+                    <th>Titik Bongkar</th>
+                    <th>Beras</th>
+                    <th>Minyak</th>
+                    <th>Terigu</th>
+                    <th>Gula</th>
                     <th>Proses</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.keys(groupedData).map((tanggal, index) => (
-                    <React.Fragment key={index}>
-                      {groupedData[tanggal].items.map((item, idx) => (
-                        <tr key={idx}>
-                          <td>{idx + 1}</td>
-                          <td>{formatDate(item.tanggal_rencana_salur)}</td>
-                          <td>{item.nama_gudang}</td>
-                          <td>{item.nama_provinsi}</td>
-                          <td>{item.nama_kabupaten_kota}</td>
-                          <td>{item.nama_kecamatan}</td>
-                          <td>{item.nama_desa_kelurahan}</td>
-                          <td style={{ textAlign: "right" }}>
-                            {parseInt(item.kpm_jumlah).toLocaleString("id-ID")}
-                          </td>
-                          <td style={{ textAlign: "right" }}>
-                            {(parseInt(item.kpm_jumlah) * 10).toLocaleString(
-                              "id-ID"
-                            )}{" "}
-                            Kg
-                          </td>
-                          <td style={{ textAlign: "center" }}>
-                            <button
-                              className="btn btn-link"
-                              onClick={() =>
-                                handleDelete(
-                                  item.id_item_rencana_salur,
-                                  item.id_rencana_salur
-                                )
-                              }
-                            >
-                              <i className="bx bx-minus-circle text-danger"></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                      {/* Total untuk tanggal */}
-                      <tr>
-                        <td colSpan="7" className="text-start fw-bold">
-                          Subtotal Tanggal {formatDate(tanggal)}
+                  {muatan.length > 0 ? (
+                    muatan.map((item, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{item.nama_kabupaten_kota}</td>
+                        <td>{item.titik_bongkar}</td>
+                        <td>{item.beras}</td>
+                        <td>{item.minyak}</td>
+                        <td>{item.terigu}</td>
+                        <td>{item.gula}</td>
+                        <td className="text-center">
+                          <button onClick={() => handleDelete(item.id_titik_bongkar)} className="border-0 bg-transparent text-danger">
+                            <XCircle size={20} />
+                          </button>
                         </td>
-                        <td className="fw-bold" style={{ textAlign: "right" }}>
-                          {groupedData[tanggal].total.toLocaleString("id-ID")}
-                        </td>
-                        <td className="fw-bold" style={{ textAlign: "right" }}>
-                          {(groupedData[tanggal].total * 10).toLocaleString(
-                            "id-ID"
-                          )}{" "}
-                          Kg
-                        </td>
-                        <td colSpan="3"></td>
                       </tr>
-                    </React.Fragment>
-                  ))}
-                  {/* Total keseluruhan */}
-                  {ietmRencanaSalur.length > 0 && (
+                    ))
+                  ) : (
                     <tr>
-                      <td colSpan="7" className="text-start fw-bold">
-                        Total Keseluruhan
-                      </td>
-                      <td className="fw-bold" style={{ textAlign: "right" }}>
-                        {totalOverall.toLocaleString("id-ID")}
-                      </td>
-                      <td className="fw-bold" style={{ textAlign: "right" }}>
-                        {(totalOverall * 10).toLocaleString("id-ID")} Kg
-                      </td>
-                      <td colSpan="3"></td>
-                    </tr>
-                  )}
-                  {ietmRencanaSalur.length === 0 && (
-                    <tr>
-                      <td colSpan="10" className="text-center">
-                        Tidak ada data tersedia.
-                      </td>
+                      <td colSpan="9" className="text-center">Data tidak tersedia</td>
                     </tr>
                   )}
                 </tbody>

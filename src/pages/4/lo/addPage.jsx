@@ -38,29 +38,29 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
     const [nomorLO, setNomoerLO] = useState("");
 
 
-    const fetchJumlahLO = async () => {
-        try {
-            const bulanSekarang = new Date().getMonth() + 1;
-            const bulanFormatted = String(bulanSekarang).padStart(2, "0");
-            const tahunSekarang = new Date().getFullYear();
-            const response = await axios.get(`http://localhost:3091/api/v1/po/jumlahpobulanan/${bulanSekarang}`, {
-                headers: {
-                    Authorization: token
-                }
-            });
-            let nomor = "";
-            if (response.data.jumlahPO < 10) {
-                nomor = `00${response.data.jumlahPO + 1}`
-            } else if (response.data.jumlahPO < 100) {
-                nomor = `0${response.data.jumlahPO + 1}`
-            } else {
-                nomor = `${response.data.jumlahPO + 1}`
-            }
-            setNomoerLO(`88LOG-PO${bulanFormatted}${tahunSekarang}-${nomor}`);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    // const fetchJumlahLO = async () => {
+    //     try {
+    //         const bulanSekarang = new Date().getMonth() + 1;
+    //         const bulanFormatted = String(bulanSekarang).padStart(2, "0");
+    //         const tahunSekarang = new Date().getFullYear();
+    //         const response = await axios.get(`http://localhost:3091/api/v1/po/jumlahpobulanan/${bulanSekarang}`, {
+    //             headers: {
+    //                 Authorization: token
+    //             }
+    //         });
+    //         let nomor = "";
+    //         if (response.data.jumlahPO < 10) {
+    //             nomor = `00${response.data.jumlahPO + 1}`
+    //         } else if (response.data.jumlahPO < 100) {
+    //             nomor = `0${response.data.jumlahPO + 1}`
+    //         } else {
+    //             nomor = `${response.data.jumlahPO + 1}`
+    //         }
+    //         setNomoerLO(`88LOG-PO${bulanFormatted}${tahunSekarang}-${nomor}`);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // };
 
 
     // const handleFileChange = (event, setFile, setPreview, kpm, lokasi, type) => {
@@ -150,14 +150,14 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
     //     }
     // };
 
-    const handleError = (err) => {
-        console.error('Error with QR scanner: ', err);
-    };
+    // const handleError = (err) => {
+    //     console.error('Error with QR scanner: ', err);
+    // };
 
-    const handleAlokasiChange = async (selectedOption) => {
-        setSelectedAlokasi(selectedOption);
-        setIsScannerVisible(true);
-    };
+    // const handleAlokasiChange = async (selectedOption) => {
+    //     setSelectedAlokasi(selectedOption);
+    //     setIsScannerVisible(true);
+    // };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -168,7 +168,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
     };
 
     const handleSubmit = async () => {
-
+        event.preventDefault();
         const formDataInsert = new FormData();
         formDataInsert.append('id_kantor', id_kantor);
         formDataInsert.append('nomor_lo', "NOMORLO");
@@ -183,21 +183,22 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
         console.log([...formDataInsert.entries()]);
 
-        // const result = await axios.post(`http://localhost:3091/api/v1/lo`, formDataInsert, {
-        //     headers: {
-        //         'Authorization': token,
-        //         'Content-Type': 'multipart/form-data',
-        //     }
-        // });
-        // Swal.fire({
-        //     title: 'Data Penyaluran',
-        //     text: 'Data Berhasil Ditambahkan',
-        //     icon: 'success',
-        //     showConfirmButton: false,
-        //     timer: 2000,
-        // }).then(() => {
-        //     // handleBackClick();
-        // });
+        const result = await axios.post(`http://localhost:3091/api/v1/lo`, formDataInsert, {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'multipart/form-data',
+            }
+        });
+        Swal.fire({
+            title: 'Data Penyaluran',
+            text: 'Data Berhasil Ditambahkan',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 2000,
+        }).then(() => {
+            handleBackClick();
+            
+        });
     };
 
     return (
@@ -228,12 +229,16 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
                             <input className="form-control text-uppercase" type="date" id="tanggal_lo" name='tanggal_lo' placeholder="" onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
+                            <label htmlFor="titik_muat" className="form-label">Titik Muat</label>
+                            <input className="form-control text-uppercase" type="text" id="titik_muat" name='titik_muat' onChange={handleChange} required />
+                        </div>
+                        <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="jenis_mobil" className="form-label">Jenis Mobil</label>
-                            <input className="form-control" type="text" id="jenis_mobil" name='jenis_mobil' onChange={handleChange} required />
+                            <input className="form-control text-uppercase" type="text" id="jenis_mobil" name='jenis_mobil' onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="nopol_mobil" className="form-label">Nopol Mobil</label>
-                            <input className="form-control" type="text" id="nopol_mobil" name='nopol_mobil' onChange={handleChange} required />
+                            <input className="form-control text-uppercase" type="text" id="nopol_mobil" name='nopol_mobil' onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="nama_driver" className="form-label">Nama Driver</label>
