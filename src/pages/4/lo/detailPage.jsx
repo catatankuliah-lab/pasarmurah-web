@@ -1,26 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import Select from "react-select";
 import Swal from "sweetalert2";
-import QRCode from "qrcode";
 import { jsPDF } from "jspdf";
-import { XCircle } from "lucide-react";
 
 
 const DetailPage = ({
-  handlePageChanges,
   detailId,
   handleBackClick,
-  alokasiInit,
 }) => {
-  const inputRef = useRef(null);
 
   // Data dari localstorage
   const token = localStorage.getItem("token");
   const id_kantor = localStorage.getItem("id_kantor");
-  const id_user = localStorage.getItem("id_user");
-  const nama_kantor = localStorage.getItem("nama_kantor");
+  // const id_user = localStorage.getItem("id_user");
+  // const nama_kantor = localStorage.getItem("nama_kantor");
 
   const [formData, setFormData] = useState({
     id_kantor: "",
@@ -46,45 +41,25 @@ const DetailPage = ({
     gula: "",
   });
 
-  const [ietmRencanaSalur, setIetmRencanaSalur] = useState([]);
-
-  const [alokasiOption, setAlokasiOption] = useState([]);
-  const [selectedAlokasi, setSelectedAlokasi] = useState(null);
-
-  const [provinsiOption, setProvinsiOption] = useState([]);
-  const [selectedProvinsi, setSelectedProvinsi] = useState(null);
-
-  const [kabupatenOption, setKabupatenOption] = useState([]);
-  const [selectedKabupaten, setSelectedKabupaten] = useState("");
-
-  const [kecamatanOption, setKecamatanOption] = useState([]);
-  const [selectedKecamatan, setSelectedKecamatan] = useState("");
-
-  const [desaKelurahanOption, setDesaKelurahanOption] = useState([]);
-  const [selectedDesaKelurahan, setSelectedDesaKelurahan] = useState(null);
-
-  const [gudangOption, setGudangOption] = useState([]);
-  const [selectedGudang, setSelectedGudang] = useState(null);
-
-  const [dtt, setDTT] = useState(0);
   const [lo, setLO] = useState(null);
+
+  const fetchLO = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3091/api/v1/lo/${detailId}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      setLO(response.data.data);
+    } catch (error) {
+      console.log(error);
+      setLO([]);
+    }
+  };
+
   useEffect(() => {
-    const fetchLO = async () => {
-      console.log(detailId);
-      try {
-        const response = await axios.get(`http://localhost:3091/api/v1/lo/${detailId}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        setLO(response.data.data);
-      } catch (error) {
-        console.log(error);
-        setLO([]);
-      }
-    };
     if (detailId) {
       fetchLO();
       fetchKabupaten();
@@ -92,6 +67,7 @@ const DetailPage = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailId]);
+
   useEffect(() => {
     if (lo) {
       setFormData((prevData) => ({
@@ -139,13 +115,13 @@ const DetailPage = ({
         }
       );
       Swal.fire({
-        title: "Data LO",
+        title: "Data Loading Order",
         text: "Data Berhasil Diperbaharui",
         icon: "success",
         showConfirmButton: false,
         timer: 2000,
       }).then(() => {
-        handleBackClick();
+        fetchLO();
       });
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -160,6 +136,7 @@ const DetailPage = ({
   const [muatan, setMuatan] = useState([]);
   const [muatanOption, setMuatanOption] = useState([]);
   const [selectedMuatan, setSelectedMuatan] = useState(null);
+
   const fetchKabupaten = async () => {
     try {
       const response = await axios.get('http://localhost:3091/api/v1/kabupaten-kota', {
@@ -181,6 +158,7 @@ const DetailPage = ({
       setMuatanOption([]);
     }
   };
+
   const handleMuatanChange = (selectedOption) => {
     setSelectedMuatan(selectedOption);
     setFormData((prevData) => ({
@@ -189,17 +167,8 @@ const DetailPage = ({
     }));
   };
 
-  const handleChangeQuillMuatan = (value) => {
-    setFormDataMuatan((prevData) => ({
-      ...prevData,
-      titik_bongkar: value,
-    }));
-  };
 
   const fetchItemLO = async () => {
-    if (!token) {
-      navigate('/');
-    }
     try {
       const response = await axios.get(`http://localhost:3091/api/v1/muatan/lo/${detailId}`, {
         headers: {
@@ -215,7 +184,13 @@ const DetailPage = ({
           beras: dataitem.beras,
           minyak: dataitem.minyak,
           terigu: dataitem.terigu,
-          gula: dataitem.gula
+          gula: dataitem.gula,
+          nomor_lo: dataitem.nomor_lo,
+          tanggal_lo: dataitem.tanggal_lo,
+          titik_muat: dataitem.titik_muat,
+          nama_driver: dataitem.nama_driver,
+          nopol_mobil: dataitem.nopol_mobil,
+          telpon_driver: dataitem.telpon_driver
         }));
         setMuatan(datafetch);
       } else {
@@ -237,7 +212,6 @@ const DetailPage = ({
     dataMuatantoSubmit.append("minyak", formDataMuatan.minyak || "");
     dataMuatantoSubmit.append("terigu", formDataMuatan.terigu || "");
     dataMuatantoSubmit.append("gula", formDataMuatan.gula || "");
-    console.log([...dataMuatantoSubmit.entries()]);
     try {
       await axios.post(
         `http://localhost:3091/api/v1/muatan`,
@@ -276,7 +250,7 @@ const DetailPage = ({
       });
       Swal.fire({
         title: "Data Item Rencana Salur",
-        text: "Data Berhasil Ditambahkan",
+        text: "Data Berhasil Dihapus",
         icon: "success",
         showConfirmButton: false,
         timer: 2000,
@@ -293,28 +267,6 @@ const DetailPage = ({
     }
   };
 
-  const calculateTotals = (data) => {
-    // Mengelompokkan data berdasarkan tanggal_rencana_salur
-    const groupedData = data.reduce((acc, item) => {
-      const tanggal = item.tanggal_rencana_salur;
-      if (!acc[tanggal]) {
-        acc[tanggal] = { items: [], total: 0 };
-      }
-      acc[tanggal].items.push(item);
-      acc[tanggal].total += parseInt(item.kpm_jumlah, 10);
-      return acc;
-    }, {});
-
-    return groupedData;
-  };
-
-  const totalOverall = ietmRencanaSalur.reduce(
-    (acc, item) => acc + parseInt(item.kpm_jumlah, 10),
-    0
-  );
-
-  const groupedData = calculateTotals(ietmRencanaSalur);
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -323,205 +275,230 @@ const DetailPage = ({
     return `${day}/${month}/${year}`;
   };
 
-  const generateQRCode = async (textqr) => {
-    try {
-      return await QRCode.toDataURL(textqr); // Kembalikan hasil QR code
-    } catch (err) {
-      console.error("Error generating QR code", err);
-      return null;
-    }
-  };
-
   const downloadPDF = async () => {
-    const doc = new jsPDF("landscape", "mm", "a4");
+    const doc = new jsPDF('landscape', 'mm', 'a5');
+    let maxWidthTibong = 69;
+    let maxWidthTibongSJ = 50;
 
-    // Generate QR Code
-    let qr = await generateQRCode(ietmRencanaSalur[0].kode_rencana_salur);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
 
-    doc.addImage(qr, "PNG", 7, 7, 25, 25, null, "FAST");
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Menambahkan teks di tengah halaman
+    doc.addImage("../../../assets/ald.png", "PNG", 10, 5, 17, 15, null, 'FAST');
+    doc.addImage("../../../assets/Pos.png", "PNG", 185, 5, 15, 15, null, 'FAST');
 
-    const pageWidth = doc.internal.pageSize.getWidth(); // Lebar halaman
-    const pageHeight = doc.internal.pageSize.getHeight(); // Tinggi halaman
+    doc.text("BERITA ACARA SERAH TERIMA BARANG GUDANG", pageWidth / 2, 10, { align: "center" });
+    doc.text("BANTUAN OPERASI PASAR MURAH 2025", pageWidth / 2, 15, { align: "center" });
+    doc.text(`NOMOR LO : ${lo.nomor_lo}`, pageWidth / 2, 20, { align: "center" });
 
-    // Menambahkan teks yang diatur di tengah halaman
-    doc.setFontSize(12); // Mengatur ukuran font menjadi 8 (ukuran standar jsPDF adalah 16)
-    doc.setFont("helvetica", "bold");
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
 
-    doc.text("RENCANA SALUR ", pageWidth / 2, 15, null, null, "center");
-    doc.text(
-      "PENERIMA BANTUAN PANGAN PEMERINTAH – JANUARI 2025 ",
-      pageWidth / 2,
-      25,
-      null,
-      null,
-      "center"
-    );
+    doc.rect(10, 25.5, 37.5, 5);
+    doc.rect(47.5, 25.5, 57.5, 5);
+    doc.rect(105, 25.5, 37.5, 5);
+    doc.rect(142.5, 25.5, 57.5, 5);
 
-    doc.line(10, 35, 285, 35);
+    doc.text("Tanggal", 12, 29);
+    doc.text(`: ${formatDate(lo.tanggal_lo)}`, 49.5, 29);
+    doc.text("Nama Driver", 107, 29);
+    doc.text(`: ${lo.nama_driver}`, 144.5, 29);
 
-    doc.text(
-      `${ietmRencanaSalur[0].kode_rencana_salur}`,
-      pageWidth / 2,
-      43,
-      null,
-      null,
-      "center"
-    );
+    doc.rect(10, 30.5, 37.5, 5);
+    doc.rect(47.5, 30.5, 57.5, 5);
+    doc.rect(105, 30.5, 37.5, 5);
+    doc.rect(142.5, 30.5, 57.5, 5);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10); // Mengatur ukuran font menjadi 8 (ukuran standar jsPDF adalah 16)
+    doc.text("Gudang Muat", 12, 34);
+    doc.text(`: ${lo.titik_muat}`, 49.5, 34);
+    doc.text("NOPOL", 107, 34);
+    doc.text(`: ${lo.nopol_mobil}`, 144.5, 34);
 
-    doc.text(
-      "Kami yang bertanda tangan dibawah adalah sebagai pembuat rencana salur yang menyatakan dengan sebenar – benarnya bahwa kami telah membuat rencana salur.",
-      10,
-      55,
-      null,
-      null,
-      "left"
-    );
+    doc.rect(10, 40.5, 10, 7);
+    doc.rect(20, 40.5, 72, 7);
+    doc.rect(92, 40.5, 23, 7);
+    doc.rect(115, 40.5, 23, 7);
+    doc.rect(138, 40.5, 23, 7);
+    doc.rect(161, 40.5, 23, 7);
+    doc.rect(184, 40.5, 16.5, 7);
 
-    // doc.text("sebenar – benarnya bahwa kami telah membuat rencana salur.", 10, 80, null, null, 'left');
+    doc.text("No.", 15, 45, { align: "center" });
+    doc.text("Titik Drop", 56, 45, { align: "center" });
+    doc.text("Beras", 103, 45, { align: "center" });
+    doc.text("Minyak", 126, 45, { align: "center" });
+    doc.text("Terigu", 149, 45, { align: "center" });
+    doc.text("Gula", 172, 45, { align: "center" });
+    doc.text("Ket", 192, 45, { align: "center" });
 
-    doc.setFontSize(8);
-    // Menambahkan Tabel
-    doc.rect(10, 60, 10, 10);
-    doc.rect(20, 60, 35, 10);
-    doc.rect(55, 60, 35, 10);
-    doc.rect(90, 60, 35, 10);
-    doc.rect(125, 60, 35, 10);
-    doc.rect(160, 60, 39, 10);
-    doc.rect(199, 60, 42, 10);
-    doc.rect(241, 60, 22, 10);
-    doc.rect(263, 60, 22, 10);
+    doc.rect(10, 47.7, 10, 40);
+    doc.rect(20, 47.7, 72, 40);
+    doc.rect(92, 47.7, 23, 40);
+    doc.rect(115, 47.7, 23, 40);
+    doc.rect(138, 47.7, 23, 40);
+    doc.rect(161, 47.7, 23, 40);
+    doc.rect(184, 47.7, 16.5, 40);
 
-    // buat isi tabel header
-    doc.text("No.", 12, 66);
-    doc.text("Tanggal", 22, 66);
-    doc.text("Gudang Bulog", 57, 66);
-    doc.text("Provinsi", 92, 66);
-    doc.text("Kabupaten", 127, 66);
-    doc.text("Kecamatan", 162, 66);
-    doc.text("Desa/Kelurahan", 201, 66);
-    doc.text("KPM", 260, 66, { align: "right" });
-    doc.text("Kg", 282, 66, { align: "right" });
+    let yText1 = 52;
+    let yText2 = 57;
 
-    let tableY = 70;
-    let textY = 76;
-    let pageY = 70;
-    let namaDesa = "";
-    let namaDesa1 = "";
-    let namaDesa2 = "";
+    muatan.forEach((drop, index) => {
+      doc.text(`${index+1}.`, 15, yText1, { align: "center" });
+      let textTitikBongkar = `${drop.nama_kabupaten_kota} (${drop.titik_bongkar})`;
+      let titikBongkarWrapped = doc.splitTextToSize(textTitikBongkar, maxWidthTibong);
+      doc.text(titikBongkarWrapped, 22, yText1, { align: "left" });
+      doc.text(`${drop.beras} Pcs`, 103, yText1, { align: "center" });
+      doc.text(`(${drop.beras * 5} Kg)`, 103, yText2, { align: "center" });
+      doc.text(`${drop.minyak} Pcs`, 126, yText1, { align: "center" });
+      doc.text(`(${drop.minyak * 2} Ltr)`, 126, yText2, { align: "center" });
+      doc.text(`${drop.terigu} Pcs`, 149, yText1, { align: "center" });
+      doc.text(`(${drop.terigu} Kg)`, 149, yText2, { align: "center" });
+      doc.text(`${drop.gula} Pcs`, 172, yText1, { align: "center" });
+      doc.text(`(${drop.gula} Kg)`, 172, yText2, { align: "center" });
+      doc.text("SESUAI", 192, yText1, { align: "center" });
+      yText1 = yText1 + 11;
+      yText2 = yText2 + 11;
+    });
 
-    for (let i = 0; i < ietmRencanaSalur.length; i++) {
-      console.log(`nomor ${i + 1} : ${tableY}`);
+    doc.rect(10, 92.5, 63.3, 12);
+    doc.rect(73.3, 92.5, 63.3, 12);
+    doc.rect(136.6, 92.5, 63.4, 12);
 
-      // Menambahkan Tabel
-      doc.rect(10, tableY, 10, 10);
-      doc.rect(20, tableY, 35, 10);
-      doc.rect(55, tableY, 35, 10);
-      doc.rect(90, tableY, 35, 10);
-      doc.rect(125, tableY, 35, 10);
-      doc.rect(160, tableY, 39, 10);
-      doc.rect(199, tableY, 42, 10);
-      doc.rect(241, tableY, 22, 10);
-      doc.rect(263, tableY, 22, 10);
+    doc.text("Diserahkan Oleh", 42.5, 97, { align: "center" });
+    doc.text("Admin Gudang", 42.5, 102, { align: "center" });
 
-      // buat isi tabel
-      doc.text(`${i + 1}`, 12, textY);
-      doc.text(
-        `${formatDate(ietmRencanaSalur[i].tanggal_rencana_salur)}`,
-        22,
-        textY
-      );
-      doc.text(`${ietmRencanaSalur[i].nama_gudang}`, 57, textY);
-      doc.text(`${ietmRencanaSalur[i].nama_provinsi}`, 92, textY);
-      doc.text(`${ietmRencanaSalur[i].nama_kabupaten_kota}`, 127, textY);
-      doc.text(`${ietmRencanaSalur[i].nama_kecamatan}`, 162, textY);
+    doc.text("Diverifikasi Oleh", 105, 97, { align: "center" });
+    doc.text("PT. POS Indonesia", 105, 102, { align: "center" });
 
-      namaDesa = ietmRencanaSalur[i].nama_desa_kelurahan;
-      if (doc.getTextWidth(namaDesa) <= 30) {
-        namaDesa1 = namaDesa.substring(0, 30);
+    doc.text("Diterima Oleh", 169, 97, { align: "center" });
+    doc.text("Driver", 169, 102, { align: "center" });
 
-        doc.text(`${namaDesa1}`, 201, textY);
-        doc.text(`${namaDesa2}`, 201, textY);
-      } else {
-        namaDesa1 = namaDesa.substring(0, 30);
-        namaDesa2 = namaDesa.substring(31, 60);
+    doc.rect(10, 104.5, 63.3, 23);
+    doc.rect(73.3, 104.5, 63.3, 23);
+    doc.rect(136.6, 104.5, 63.4, 23);
 
-        doc.text(`${namaDesa1}`, 201, textY - 1.5);
-        doc.text(`${namaDesa2}`, 201, textY + 1.5);
-      }
+    doc.rect(10, 127.5, 63.3, 10);
+    doc.rect(73.3, 127.5, 63.3, 10);
+    doc.rect(136.6, 127.5, 63.4, 10);
 
-      doc.text(
-        `${ietmRencanaSalur[i].kpm_jumlah.toLocaleString("id-ID")}`,
-        260,
-        textY,
-        {
-          align: "right",
-        }
-      );
-      doc.text(
-        `${(ietmRencanaSalur[i].kpm_jumlah * 10).toLocaleString("id-ID")}`,
-        282,
-        textY,
-        { align: "right" }
-      );
-      if (i + 1 == ietmRencanaSalur.length) {
-        //tabel total
-        doc.rect(10, tableY + 10, 231, 10);
-        doc.rect(241, tableY + 10, 22, 10);
-        doc.rect(263, tableY + 10, 22, 10);
-        // total
-        doc.setFont("helvetica", "bold");
-        doc.text("Total :", 12, textY + 11);
-        doc.text(`${totalOverall.toLocaleString("id-ID")}`, 260, textY + 11, {
-          align: "right",
-        });
-        doc.text(
-          `${(totalOverall * 10).toLocaleString("id-ID")}`,
-          282,
-          textY + 11,
-          {
-            align: "right",
-          }
-        );
-      }
-      textY = textY + 10;
-      tableY = tableY + 10;
-    }
+    doc.text(`${lo.nama_driver}`, 169, 133.5, { align: "center" });
 
-    // tabel ttd
-    doc.setFont("helvetica", "normal");
+    muatan.forEach((drop, index) => {
+      doc.addPage();
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(10);
 
-    doc.rect(10, 145, 91.6, 15);
-    doc.rect(101.6, 145, 91.6, 15);
-    doc.rect(193.2, 145, 91.6, 15);
-    doc.rect(10, 160, 91.6, 30);
-    doc.rect(101.6, 160, 91.6, 30);
-    doc.rect(193.2, 160, 91.6, 30);
-    doc.rect(10, 190, 91.6, 15);
-    doc.rect(101.6, 190, 91.6, 15);
-    doc.rect(193.2, 190, 91.6, 15);
+      const pageWidth = doc.internal.pageSize.getWidth();
 
-    // ttd
-    doc.text("Diserahkan Oleh", 55, 151, { align: "center" });
-    doc.text("Diverifikasi Oleh", 145, 151, { align: "center" });
-    doc.text("Diterima Oleh", 240, 151, { align: "center" });
-    doc.text("PT. Delapan Delapan Logistics", 55, 156, { align: "center" });
-    doc.text("KPU Kabupaten Tasikmalaya", 145, 156, { align: "center" });
-    doc.text("Diver", 240, 156, { align: "center" });
-    doc.text("Nama Lengkap", 55, 197, { align: "center" });
-    doc.text("Telp.", 34, 202, { align: "center" });
-    doc.text("Nama Lengkap", 145, 197, { align: "center" });
-    doc.text("Telp.", 124, 202, { align: "center" });
-    doc.text("Nama Lengkap", 240, 197, { align: "center" });
-    doc.text("Telp.", 219, 202, { align: "center" });
+      doc.addImage("../../../assets/ald.png", "PNG", 10, 5, 17, 15, null, 'FAST');
+      doc.addImage("../../../assets/Pos.png", "PNG", 185, 5, 15, 15, null, 'FAST');
 
-    doc.save(`${ietmRencanaSalur[0].kode_rencana_salur}.pdf`, {
+      doc.text("SURAT JALAN", pageWidth / 2, 10, { align: "center" });
+      doc.text("BANTUAN OPERASI PASAR MURAH 2025", pageWidth / 2, 15, { align: "center" });
+      doc.text(`NOMOR SURAT : ${drop.nomor_lo}-${index+1}`, pageWidth / 2, 20, { align: "center" });
+
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(10);
+
+      doc.rect(10, 25.5, 37.5, 5);
+      doc.rect(47.5, 25.5, 57.5, 5);
+      doc.rect(105, 25.5, 37.5, 5);
+      doc.rect(142.5, 25.5, 57.5, 5);
+
+      doc.text("Nomor LO", 12, 29);
+      doc.text(`: ${drop.nomor_lo}`, 49.5, 29);
+      doc.text("Nama Driver", 107, 29);
+      doc.text(`: ${drop.nama_driver}`, 144.5, 29);
+
+      doc.rect(10, 30.5, 37.5, 5);
+      doc.rect(47.5, 30.5, 57.5, 5);
+      doc.rect(105, 30.5, 37.5, 5);
+      doc.rect(142.5, 30.5, 57.5, 5);
+
+      doc.text("Tanggal", 12, 34);
+      doc.text(`: ${formatDate(drop.tanggal_lo)}`, 49.5, 34);
+      doc.text("NOPOL", 107, 34);
+      doc.text(`: ${drop.nopol_mobil}`, 144.5, 34);
+
+      doc.rect(10, 35.5, 37.5, 5);
+      doc.rect(47.5, 35.5, 57.5, 5);
+      doc.rect(105, 35.5, 37.5, 5);
+      doc.rect(142.5, 35.5, 57.5, 5);
+
+      doc.text("Gudang Muat", 12, 39);
+      doc.text(`: ${drop.titik_muat}`, 49.5, 39);
+      doc.text("No.Hp Driver", 107, 39);
+      doc.text(`: ${drop.telpon_driver}`, 144.5, 39);
+
+      doc.rect(10, 40.5, 37.5, 5);
+      doc.rect(47.5, 40.5, 57.5, 5);
+      doc.rect(105, 40.5, 37.5, 5);
+      doc.rect(142.5, 40.5, 57.5, 5);
+
+      doc.text("Kabupaten/Kota", 12, 44);
+      doc.text(`: ${drop.nama_kabupaten_kota}`, 49.5, 44);
+      doc.text("Nama PIC", 107, 44);
+      doc.text(": ", 144.5, 44);
+
+      doc.rect(10, 50.5, 10, 7);
+      doc.rect(20, 50.5, 52, 7);
+      doc.rect(72, 50.5, 23, 7);
+      doc.rect(95, 50.5, 23, 7);
+      doc.rect(118, 50.5, 23, 7);
+      doc.rect(141, 50.5, 23, 7);
+      doc.rect(164, 50.5, 36.5, 7);
+
+      doc.text("No.", 15, 55, { align: "center" });
+      doc.text("Titik Drop", 46, 55, { align: "center" });
+      doc.text("Beras", 83, 55, { align: "center" });
+      doc.text("Minyak", 106, 55, { align: "center" });
+      doc.text("Terigu", 129, 55, { align: "center" });
+      doc.text("Gula", 152, 55, { align: "center" });
+      doc.text("TTD & Nama Jelas", 182, 55, { align: "center" });
+
+      doc.rect(10, 57.7, 10, 30);
+      doc.rect(20, 57.7, 52, 30);
+      doc.rect(72, 57.7, 23, 30);
+      doc.rect(95, 57.7, 23, 30);
+      doc.rect(118, 57.7, 23, 30);
+      doc.rect(141, 57.7, 23, 30);
+      doc.rect(164, 57.7, 36.5, 30);
+
+      doc.text("1.", 15, 62, { align: "center" });
+      let titikBongkarWrapped = doc.splitTextToSize(drop.titik_bongkar, maxWidthTibongSJ);
+      doc.text(titikBongkarWrapped, 22, 62, { align: "left" });
+      doc.text(`${drop.beras} Pcs`, 83, 62, { align: "center" });
+      doc.text(`(${drop.beras*5} Kg)`, 83, 67, { align: "center" });
+      doc.text(`${drop.minyak} Pcs`, 106, 62, { align: "center" });
+      doc.text(`(${drop.minyak * 2} Ltr)`, 106, 67, { align: "center" });
+      doc.text(`${drop.terigu} Pcs`, 129, 62, { align: "center" });
+      doc.text(`(${drop.terigu} Kg)`, 129, 67, { align: "center" });
+      doc.text(`${drop.gula} Pcs`, 153, 62, { align: "center" });
+      doc.text(`(${drop.gula} Kg)`, 153, 67, { align: "center" });
+
+      doc.rect(10, 92.5, 95, 12);
+      doc.rect(105, 92.5, 95, 12);
+
+      doc.text("Diserahkan Oleh", 57.5, 97, { align: "center" });
+      doc.text("Admin Gudang", 57.5, 102, { align: "center" });
+
+      doc.rect(10, 104.5, 95, 23);
+      doc.rect(105, 104.5, 95, 23);
+
+      doc.text("Diserahkan Oleh", 153, 97, { align: "center" });
+      doc.text("Admin/PIC/Driver", 153, 102, { align: "center" });
+
+      doc.rect(10, 127.5, 95, 10);
+      doc.rect(105, 127.5, 95, 10);
+
+      doc.text(`${drop.nama_driver}`, 153, 132, { align: "center" });
+      doc.text(`${drop.telpon_driver}`, 153, 136, { align: "center" });
+    });
+
+    doc.save(`${lo.nomor_lo}.pdf`, {
       compression: "FAST",
     });
+
   };
 
   return (
@@ -714,7 +691,7 @@ const DetailPage = ({
                         <td>{item.gula} ({(item.gula * 1)} Kg)</td>
                         <td className="text-center">
                           <button onClick={() => handleDelete(item.id_item_lo)} className="border-0 bg-transparent text-danger">
-                            <XCircle size={20} />
+                            <i className="bx bx-minus-circle"></i>
                           </button>
                         </td>
                       </tr>
@@ -737,8 +714,7 @@ const DetailPage = ({
 DetailPage.propTypes = {
   handlePageChanges: PropTypes.func.isRequired,
   detailId: PropTypes.number.isRequired,
-  handleBackClick: PropTypes.func.isRequired,
-  alokasiInit: PropTypes.number.isRequired,
+  handleBackClick: PropTypes.func.isRequired
 };
 
 export default DetailPage;

@@ -1,25 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import Select from 'react-select';
 import Swal from 'sweetalert2';
-import QrScanner from "react-qr-scanner";
 
 const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
     const token = localStorage.getItem('token') || '';
-    const id_user = localStorage.getItem('id_user') || '';
     const id_kantor = localStorage.getItem('id_kantor') || '';
-
-    const [result, setResult] = useState("");
-    const [kpm, setKPM] = useState(null);
-
-    const [selectedPenyaluran, setSelectedPenyaluran] = useState(null);
-
-
-    const handlePenyaluranChange = (selectedOption) => {
-        setSelectedPenyaluran(selectedOption);
-    };
+    const username = localStorage.getItem("username") || '';
 
     const [formData, setFormData] = useState({
         id_kantor: "",
@@ -38,126 +26,27 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
     const [nomorLO, setNomoerLO] = useState("");
 
 
-    // const fetchJumlahLO = async () => {
-    //     try {
-    //         const bulanSekarang = new Date().getMonth() + 1;
-    //         const bulanFormatted = String(bulanSekarang).padStart(2, "0");
-    //         const tahunSekarang = new Date().getFullYear();
-    //         const response = await axios.get(`http://localhost:3091/api/v1/po/jumlahpobulanan/${bulanSekarang}`, {
-    //             headers: {
-    //                 Authorization: token
-    //             }
-    //         });
-    //         let nomor = "";
-    //         if (response.data.jumlahPO < 10) {
-    //             nomor = `00${response.data.jumlahPO + 1}`
-    //         } else if (response.data.jumlahPO < 100) {
-    //             nomor = `0${response.data.jumlahPO + 1}`
-    //         } else {
-    //             nomor = `${response.data.jumlahPO + 1}`
-    //         }
-    //         setNomoerLO(`88LOG-PO${bulanFormatted}${tahunSekarang}-${nomor}`);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
-
-
-    // const handleFileChange = (event, setFile, setPreview, kpm, lokasi, type) => {
-    //     const file = event.target.files[0];
-    //     if (file) {
-    //         const reader = new FileReader();
-    //         reader.onload = (e) => {
-    //             const img = new Image();
-    //             img.src = e.target.result;
-    //             img.onload = () => {
-    //                 const canvas = document.createElement("canvas");
-    //                 const ctx = canvas.getContext("2d");
-
-    //                 // Set canvas size to image dimensions
-    //                 canvas.width = img.width;
-    //                 canvas.height = img.height;
-
-    //                 // Draw image on canvas
-    //                 ctx.drawImage(img, 0, 0);
-
-    //                 // Add timestamp and location text
-    //                 const boxHeight = 150;
-    //                 ctx.globalAlpha = 0.7;
-    //                 ctx.fillStyle = "black";
-    //                 ctx.fillRect(0, img.height - boxHeight, img.width, boxHeight);
-
-    //                 ctx.globalAlpha = 1;
-    //                 ctx.fillStyle = "white";
-    //                 ctx.font = "30px Arial";
-
-    //                 // Add timestamp
-    //                 const timestamp = new Date().toLocaleString("id-ID");
-    //                 ctx.fillText(`Waktu: ${timestamp}`, 20, img.height - boxHeight + 60);
-
-    //                 // Add location details if available
-    //                 if (lokasi) {
-    //                     ctx.fillText(`${lokasi.desa}, ${lokasi.kecamatan}, ${lokasi.kabupaten}`, 20, img.height - boxHeight + 100);
-    //                     ctx.fillText(`${lokasi.provinsi}`, 20, img.height - boxHeight + 120);
-    //                 }
-
-    //                 // Convert canvas to image and set preview
-    //                 const finalImage = canvas.toDataURL("image/jpeg", 0.7); // Compress to 70%
-    //                 setPreview(finalImage);
-
-    //                 // Convert data URL to Blob
-    //                 const blob = dataURLtoBlob(finalImage);
-
-    //                 // Determine file name based on type
-    //                 const nik = kpm?.decrypted_nik || "unknown_nik";
-    //                 const newFileName =
-    //                     type === "ktp"
-    //                         ? `ktp_${nik}.jpg`
-    //                         : `kpm_${nik}.jpg`;
-
-    //                 // Create new File object
-    //                 const newFile = new File([blob], newFileName, { type: "image/jpeg" });
-    //                 setFile(newFile);
-    //             };
-    //         };
-    //         reader.readAsDataURL(file);
-    //     }
-    // };
-
-    // // Helper function to convert data URL to Blob
-    // const dataURLtoBlob = (dataURL) => {
-    //     const arr = dataURL.split(',');
-    //     const mime = arr[0].match(/:(.*?);/)[1];
-    //     const bstr = atob(arr[1]);
-    //     let n = bstr.length;
-    //     const u8arr = new Uint8Array(n);
-    //     while (n--) {
-    //         u8arr[n] = bstr.charCodeAt(n);
-    //     }
-    //     return new Blob([u8arr], { type: mime });
-    // };
-
-    const previewStyle = {
-        height: 355,
-        width: 355,
+    const fetchJumlahLO = async () => {
+        try {
+            const bulanSekarang = new Date().getMonth() + 1;
+            const bulanFormatted = String(bulanSekarang).padStart(2, "0");
+            const tahunSekarang = new Date().getFullYear();
+            const response = await axios.get(`http://localhost:3091/api/v1/lo/jumlahlokantor/${id_kantor}`, {
+                headers: {
+                    Authorization: token
+                }
+            });
+            let nomor = response.data.jumlahLO + 1;
+            setNomoerLO(`LOBPM-${username}-${bulanFormatted}${tahunSekarang}-${nomor}`);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    // const handleScan = (data) => {
-    //     if (data) {
-    //         setResult(data.text);
-    //         fetchKPM(data.text);
-    //         setIsScannerVisible(false);
-    //     }
-    // };
-
-    // const handleError = (err) => {
-    //     console.error('Error with QR scanner: ', err);
-    // };
-
-    // const handleAlokasiChange = async (selectedOption) => {
-    //     setSelectedAlokasi(selectedOption);
-    //     setIsScannerVisible(true);
-    // };
+    useEffect(() => {
+        fetchJumlahLO();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -171,7 +60,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
         event.preventDefault();
         const formDataInsert = new FormData();
         formDataInsert.append('id_kantor', id_kantor);
-        formDataInsert.append('nomor_lo', "NOMORLO");
+        formDataInsert.append('nomor_lo', nomorLO);
         formDataInsert.append('tanggal_lo', formData.tanggal_lo);
         formDataInsert.append('titik_muat', formData.titik_muat);
         formDataInsert.append('jenis_mobil', formData.jenis_mobil);
@@ -181,23 +70,20 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
         formDataInsert.append('file_lo', "pasar.pdf");
         formDataInsert.append('status_lo', "DIBUAT");
 
-        console.log([...formDataInsert.entries()]);
-
-        const result = await axios.post(`http://localhost:3091/api/v1/lo`, formDataInsert, {
+        const response = await axios.post(`http://localhost:3091/api/v1/lo`, formDataInsert, {
             headers: {
                 'Authorization': token,
                 'Content-Type': 'multipart/form-data',
             }
         });
         Swal.fire({
-            title: 'Data Penyaluran',
+            title: 'Data Loading Order',
             text: 'Data Berhasil Ditambahkan',
             icon: 'success',
             showConfirmButton: false,
             timer: 2000,
         }).then(() => {
-            handleBackClick();
-            
+            handlePageChanges(response.data.data);
         });
     };
 
@@ -221,7 +107,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
                 <form id="form" onSubmit={handleSubmit}>
                     <div className="row">
                         <div className="col-md-3 col-sm-12 mb-3">
-                            <label htmlFor="nomor_po" className="form-label">Nomor PO</label>
+                            <label htmlFor="nomor_po" className="form-label">Nomor LO</label>
                             <input className="form-control" type="text" id="nomor_po" name='nomor_po' placeholder="88LOG-PO0000-000" onChange={handleChange} required readOnly value={nomorLO || ""} />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">

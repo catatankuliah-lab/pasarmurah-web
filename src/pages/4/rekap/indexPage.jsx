@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import DataTable from "react-data-table-component";
-import DetailPage from "./detailPage";
 import { useNavigate } from "react-router-dom";
 
 const IndexPage = () => {
@@ -16,10 +15,11 @@ const IndexPage = () => {
         }
     }, [navigate, token]);
 
-    const [currentView, setCurrentView] = useState("index");
+    const [currentView] = useState("index");
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [filters, setFilters] = useState({
+        id_kantor: id_kantor,
         nomor_lo: "",
         titik_muat: "",
         nama_kabupaten_kota: "",
@@ -109,42 +109,47 @@ const IndexPage = () => {
             selector: (row) => row.nama_kantor,
             sortable: true,
             width: "200px",
+            cell: (row) => row.nama_kantor,
         },
         {
             name: "Tanggal",
             selector: (row) => row.isTotalRow ? "" : formatDate(row.tanggal_lo),
             sortable: true,
-            width: "120px",
+            width: "110px",
         },
         {
             name: "Nopol",
             selector: (row) => row.nopol_mobil,
             sortable: true,
-            width: "100px",
+            width: "110px",
         },
         {
             name: "Driver",
             selector: (row) => row.nama_driver,
             sortable: true,
-            width: "100px",
+            width: "200px",
+            cell: (row) => row.nama_driver,
         },
         {
             name: "Gudang",
             selector: (row) => row.titik_muat,
             sortable: true,
             width: "200px",
+            cell: (row) => row.titik_muat,
         },
         {
             name: "Kabupaten/Kota Tujuan",
             selector: (row) => row.nama_kabupaten_kota,
             sortable: true,
             width: "300px",
+            cell: (row) => row.nama_kabupaten_kota,
         },
         {
             name: "Detail Tujuan",
             selector: (row) => row.titik_bongkar,
             sortable: true,
             width: "300px",
+            cell: (row) => row.titik_bongkar,
         },
         {
             name: "Beras",
@@ -202,9 +207,10 @@ const IndexPage = () => {
         }
 
         try {
-            const response = await axios.get("http://localhost:3091/api/v1/rekapall", {
+            const response = await axios.get("http://localhost:3091/api/v1/rekapkantor", {
                 headers: { Authorization: token },
                 params: {
+                    id_kantor: filters.id_kantor,
                     nomor_lo: filters.nomor_lo,
                     titik_muat: filters.titik_muat,
                     nama_kabupaten_kota: filters.nama_kabupaten_kota,
@@ -216,9 +222,6 @@ const IndexPage = () => {
                     status_lo: filters.status_lo
                 },
             });
-
-            console.log(response.data);
-            
 
             const fetchedData = Array.isArray(response.data.data)
                 ? response.data.data
@@ -252,8 +255,7 @@ const IndexPage = () => {
             const matchDriver = item.nama_driver.toLowerCase().includes(filters.nama_driver.toLowerCase());
             const matchBongkar = item.titik_bongkar.toLowerCase().includes(filters.titik_bongkar.toLowerCase());
             const matchStatusLO = item.status_lo.toLowerCase().includes(filters.status_lo.toLowerCase());
-
-            const itemDate = new Date(item.tanggal_po);
+            const itemDate = new Date(item.tanggal_lo);
             const startDate = filters.startDate ? new Date(filters.startDate) : null;
             const endDate = filters.endDate ? new Date(filters.endDate) : null;
 
@@ -261,14 +263,8 @@ const IndexPage = () => {
 
             return matchNomorLO && matchTitikMuat && matchKabupatenKota && matchNopol && matchDriver && matchBongkar && matchDate && matchStatusLO;
         });
-
         setFilteredData(filtered);
     }, [filters, data]);
-
-    const handleBackClick = () => {
-        setCurrentView("index");
-        loadData();
-    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -287,7 +283,7 @@ const IndexPage = () => {
                             <div className="mb-3">
                                 <div className="divider text-start fw-bold">
                                     <div className="divider-text">
-                                        <span className="menu-header-text fs-6">Data Purchase Order</span>
+                                        <span className="menu-header-text fs-6">Data Rekap Penyaluran</span>
                                     </div>
                                 </div>
                             </div>
@@ -314,12 +310,21 @@ const IndexPage = () => {
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
-                                    <label htmlFor="" className="form-label">Customer</label>
+                                    <label htmlFor="" className="form-label">Titik Muat</label>
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={tempFilters.customer}
-                                        onChange={(e) => setTempFilters({ ...tempFilters, customer: e.target.value })}
+                                        value={tempFilters.titik_muat}
+                                        onChange={(e) => setTempFilters({ ...tempFilters, titik_muat: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-md-3 col-sm-12 mb-3">
+                                    <label htmlFor="" className="form-label">Titik Bongkar</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={tempFilters.titik_bongkar}
+                                        onChange={(e) => setTempFilters({ ...tempFilters, titik_bongkar: e.target.value })}
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
@@ -345,8 +350,8 @@ const IndexPage = () => {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        value={tempFilters.nopol_armada}
-                                        onChange={(e) => setTempFilters({ ...tempFilters, nopol_armada: e.target.value })}
+                                        value={tempFilters.nopol_mobil}
+                                        onChange={(e) => setTempFilters({ ...tempFilters, nopol_mobil: e.target.value })}
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
@@ -359,7 +364,16 @@ const IndexPage = () => {
                                     />
                                 </div>
                                 <div className="col-md-3 col-sm-12 mb-3">
-                                    <label htmlFor="" className="form-label">Status PO</label>
+                                    <label htmlFor="" className="form-label">Kabupaten/Kota</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={tempFilters.nama_kabupaten_kota}
+                                        onChange={(e) => setTempFilters({ ...tempFilters, nama_kabupaten_kota: e.target.value })}
+                                    />
+                                </div>
+                                <div className="col-md-3 col-sm-12 mb-3">
+                                    <label htmlFor="" className="form-label">Status LO</label>
                                     <input
                                         type="text"
                                         className="form-control"
@@ -391,15 +405,6 @@ const IndexPage = () => {
                         </div>
                     </div>
                 </>
-            )}
-            {currentView === "detail" && (
-                <DetailPage
-                    detailId={detailId}
-                    idCustomerInit={idCustomerInit}
-                    idArmadaInit={idArmadaInit}
-                    idDriverInit={idDriverInit}
-                    handleBackClick={handleBackClick}
-                />
             )}
         </div>
     );
