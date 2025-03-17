@@ -122,6 +122,7 @@ const DetailPage = ({
         timer: 2000,
       }).then(() => {
         fetchLO();
+        fetchItemLO();
       });
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -129,7 +130,7 @@ const DetailPage = ({
         title: "Error",
         text: "Gagal memperbarui data. Silakan coba lagi.",
         icon: "error",
-        showConfirmButton: true,
+        showConfirmButton: false,
       });
     }
   };
@@ -208,10 +209,10 @@ const DetailPage = ({
     dataMuatantoSubmit.append("id_lo", detailId);
     dataMuatantoSubmit.append("id_kabupaten_kota", selectedMuatan?.value || "");
     dataMuatantoSubmit.append("titik_bongkar", formDataMuatan.titik_bongkar || "");
-    dataMuatantoSubmit.append("beras", formDataMuatan.beras || "");
-    dataMuatantoSubmit.append("minyak", formDataMuatan.minyak || "");
-    dataMuatantoSubmit.append("terigu", formDataMuatan.terigu || "");
-    dataMuatantoSubmit.append("gula", formDataMuatan.gula || "");
+    dataMuatantoSubmit.append("beras", formDataMuatan.beras || "0");
+    dataMuatantoSubmit.append("minyak", formDataMuatan.minyak || "0");
+    dataMuatantoSubmit.append("terigu", formDataMuatan.terigu || "0");
+    dataMuatantoSubmit.append("gula", formDataMuatan.gula || "0");
     try {
       await axios.post(
         `http://localhost:3091/api/v1/muatan`,
@@ -279,6 +280,11 @@ const DetailPage = ({
     const doc = new jsPDF('landscape', 'mm', 'a5');
     let maxWidthTibong = 69;
     let maxWidthTibongSJ = 50;
+
+    const bulanIndo = [
+      "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
 
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(10);
@@ -493,6 +499,58 @@ const DetailPage = ({
 
       doc.text(`${drop.nama_driver}`, 153, 132, { align: "center" });
       doc.text(`${drop.telpon_driver}`, 153, 136, { align: "center" });
+
+      doc.addPage();
+      doc.addImage("../../../assets/ald.png", "PNG", 10, 5, 17, 15, null, 'FAST');
+      doc.addImage("../../../assets/Pos.png", "PNG", 185, 5, 15, 15, null, 'FAST');
+      doc.setFont("Helvetica", "bold");
+      doc.text("BERITA ACARA SERAH TERIMA PENDISTRIBUSIAN", pageWidth / 2, 10, { align: "center" });
+      doc.text("BANTUAN OPERASI PASAR MURAH 2025", pageWidth / 2, 15, { align: "center" });
+      doc.text(`NOMOR SURAT : BASTP-${drop.nomor_lo}-${index + 1}`, pageWidth / 2, 20, { align: "center" });
+      doc.setFont("Helvetica", "normal");
+      let tanggalSekarang = new Date().getDate();
+      let bulanSekarang = new Date().getMonth();
+      let namaBulan = bulanIndo[bulanSekarang];
+      let tahunSekarang = new Date().getFullYear();
+      doc.text(`Pada hari ini, Tanggal ${tanggalSekarang} Bulan ${namaBulan} Tahun ${tahunSekarang}, Saya yang bertandatangan dibawah ini : `, 10, 30, { align: "left" });
+      doc.text(`PIHAK I       : _____________________`, 10, 37, { align: "left" });
+      doc.text(`Bertindak untuk dan atas nama PT. POS INDONESIA (PERSERO) KC._____________________`, 10, 44, { align: "left" });
+      doc.text(`PIHAK II       : _____________________`, 10, 51, { align: "left" });
+      doc.text(`Bertindak untuk dan atas nama Petugas Tiik Bagi ${drop.titik_bongkar}`, 10, 58, { align: "left" });
+      let maxWidthBASTP = 190;
+      let textTitikKeterangan = `PIHAK I telah mendistribusikan (Mengirimkan) Bantuan Operasi Pasar Subsidi melalui Driver ${drop.nama_driver} dengan Nopol Kendaraan ${drop.nopol_mobil} kepada PIHAK II`;
+      let items = [];
+      if (drop.beras > 0) {
+        items.push(`${drop.beras} Pcs Beras dalam kemasan 5 Kg dengan total ${drop.beras * 5} Kg Beras`);
+      }
+      if (drop.minyak > 0) {
+        items.push(`${drop.minyak} Pcs Minyak dalam kemasan 2 Liter dengan total ${drop.minyak * 2} Liter Minyak`);
+      }
+      if (drop.terigu > 0) {
+        items.push(`${drop.terigu} Pcs Terigu dalam kemasan 1 Kg dengan total ${drop.terigu * 1} Kg Terigu`);
+      }
+      if (drop.gula > 0) {
+        items.push(`${drop.gula} Pcs Gula dalam kemasan 1 Kg dengan total ${drop.gula * 1} Kg Gula`);
+      }
+      if (items.length > 0) {
+        textTitikKeterangan += " sebanyak " + items.join(", ");
+      }
+      textTitikKeterangan += ` dalam keadaan baik. Adapun jika dikemudian hari terdapat kekurangan, kerusakan, dan atau bantuan tersebut ditemukan diperjualbelikan, dan seterusnya, akan menjadi tanggungjawab PIHAK II.`;
+      let textKeteranganWrapped = doc.splitTextToSize(textTitikKeterangan, maxWidthBASTP);
+      doc.text(textKeteranganWrapped, 10, 63, { align: "left" });
+      let textHeight = doc.getTextDimensions(textKeteranganWrapped).h;
+      let nextY = 63 + textHeight + 3;
+      doc.text(`Demikian Berita Serah Terima ini dibuat untuk digunakan sebagaimana mestinya.`, 10, nextY, { align: "left" });
+      nextY = nextY + 8;
+      doc.text(`${drop.nama_kabupaten_kota}, ${tanggalSekarang} ${namaBulan} ${tahunSekarang}`, 200, nextY, { align: "right" });
+      nextY = nextY + 8;
+      doc.text("PIHAK I", 42.5, nextY, { align: "center" });
+      doc.text("Mengetahui", 105, nextY, { align: "center" });
+      doc.text("PIHAK II", 169, nextY, { align: "center" });
+      nextY = nextY + 32;
+      doc.text("__________________________", 42.5, nextY,{ align: "center" });
+      doc.text("__________________________", 105, nextY, { align: "center" });
+      doc.text("__________________________", 169, nextY, { align: "center" });
     });
 
     doc.save(`${lo.nomor_lo}.pdf`, {
