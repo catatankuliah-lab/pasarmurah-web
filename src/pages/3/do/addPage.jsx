@@ -23,7 +23,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
     const fetchAlokasi = async () => {
         try {
-            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
+            const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -94,7 +94,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
             } else {
                 link = "januari";
             }
-            await axios.post(`http://localhost:3091/api/v1/${link}-do`, formDataInsert, {
+            await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-do`, formDataInsert, {
                 headers: {
                     'Authorization': token,
                     'Content-Type': 'multipart/form-data',

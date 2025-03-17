@@ -31,7 +31,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
     const fetchAlokasi = async () => {
         try {
-            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
+            const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -68,7 +68,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
         setSelectedAlokasi(selectedOption);
         let nomorrencanasalur = 0;
         try {
-            const response = await axios.get(`http://localhost:3091/api/v1/januari-rencana-salur/jumlah/kantor/${id_kantor}`, {
+            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/januari-rencana-salur/jumlah/kantor/${id_kantor}`, {
                 headers: {
                     Authorization: token
                 }
@@ -106,7 +106,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
             },
         };
         try {
-            const response = await axios.post(`http://localhost:3091/api/v1/januari-rencana-salur`, dataToSubmit, {
+            const response = await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/januari-rencana-salur`, dataToSubmit, {
                 headers: {
                     Authorization: token
                 }

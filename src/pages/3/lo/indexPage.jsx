@@ -139,7 +139,7 @@ const IndexPage = () => {
             navigate('/');
         }
         try {
-            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
+            const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -186,7 +186,7 @@ const IndexPage = () => {
             navigate('/');
         }
         try {
-            const response = await axios.get(`http://localhost:3091/api/v1/${link}-lo/pgudang/${id_gudang}`, {
+            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-lo/pgudang/${id_gudang}`, {
                 headers: {
                     Authorization: token
                 },

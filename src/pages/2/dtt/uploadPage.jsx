@@ -37,7 +37,7 @@ const UploadPage = (handleBackClick) => {
             navigate("/");
         }
         try {
-            const response = await axios.get("http://localhost:3091/api/v1/alokasi", {
+            const response = await axios.get("https://apipm.delapandelapanlogistics.com/api/v1/alokasi", {
                 headers: {
                     Authorization: token,
                 },
@@ -80,7 +80,7 @@ const UploadPage = (handleBackClick) => {
             } else {
                 link = "januari";
             }
-            await axios.put(`http://localhost:3091/api/v1/${link}-dtt/upload/${selectedDTT.value}`, formDataInsert, {
+            await axios.put(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-dtt/upload/${selectedDTT.value}`, formDataInsert, {
                 headers: {
                     'Authorization': token,
                     'Content-Type': 'multipart/form-data',
@@ -113,7 +113,7 @@ const UploadPage = (handleBackClick) => {
         const fetchDTTOptions = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:3091/api/v1/januari-dtt`,
+                    `https://apipm.delapandelapanlogistics.com/api/v1/januari-dtt`,
                     {
                         headers: {
                             Authorization: token,

@@ -21,7 +21,7 @@ const LoginPage = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3091/api/v1/login', formData);
+            const response = await axios.post('https://apipm.delapandelapanlogistics.com/api/v1/login', formData);
             console.log(response.data);
             const id_role = response.data.data.id_role;
             const id_user = response.data.data.id_user;

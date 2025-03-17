@@ -58,7 +58,7 @@ const DetailPage = ({ detailId, alokasiInit, handleBackClick }) => {
             navigate('/');
         }
         try {
-            const response = await axios.get(`http://localhost:3091/api/v1/po/${detailId}`, {
+            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/po/${detailId}`, {
                 headers: {
                     Authorization: token
                 }
@@ -80,7 +80,7 @@ const DetailPage = ({ detailId, alokasiInit, handleBackClick }) => {
             navigate('/');
         }
         try {
-            const response = await axios.get(`http://localhost:3091/api/v1/itempo/po/${detailId}`, {
+            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/itempo/po/${detailId}`, {
                 headers: {
                     Authorization: token
                 }
@@ -118,7 +118,7 @@ const DetailPage = ({ detailId, alokasiInit, handleBackClick }) => {
                 navigate('/');
             }
             try {
-                const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
+                const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/alokasi', {
                     headers: {
                         Authorization: token
                     }
@@ -196,7 +196,7 @@ const DetailPage = ({ detailId, alokasiInit, handleBackClick }) => {
         };
         console.log(dataToSubmit);
         try {
-            const response = await axios.post(`http://localhost:3091/api/v1/itempo`, dataToSubmit, {
+            const response = await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/itempo`, dataToSubmit, {
                 headers: {
                     Authorization: token
                 }
