@@ -27,6 +27,8 @@ const IndexPage = () => {
         nopol_mobil: "",
         nama_driver: "",
         titik_muat: "",
+        startDate: "",
+        endDate: "",
         status_lo: ""
     });
     const [tempFilters, setTempFilters] = useState(filters);
@@ -163,8 +165,14 @@ const IndexPage = () => {
                         Authorization: token,
                     },
                     params: {
-                        page,
-                        limit,
+                        id_kantor: id_kantor,
+                        nomor_lo: filters.nomor_lo,
+                        titik_muat: filters.titik_muat,
+                        nopol_mobil: filters.nopol_mobil,
+                        nama_driver: filters.nama_driver,
+                        startDate: filters.startDate,
+                        endDate: filters.endDate,
+                        status_lo: filters.status_lo
                     },
                 }
             );
@@ -182,7 +190,13 @@ const IndexPage = () => {
 
     useEffect(() => {
         loadData(currentPage);
-    }, [currentPage, limit]);
+    }, [currentPage]);
+
+    useEffect(() => {
+        loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters]); // Fetch ulang data saat filter berubah
+    
 
     const handlePageChange = (page) => {
         setCurrentPage(page);

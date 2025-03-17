@@ -206,6 +206,9 @@ const DetailPage = ({
           Authorization: token
         }
       });
+
+      console.log(detailId);
+      console.log(response.data);
       if (response.data.data.length !== 0) {
         const datafetch = response.data.data.map(dataitem => ({
           id_item_lo: dataitem.id_item_lo,
