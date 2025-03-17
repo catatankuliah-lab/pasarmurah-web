@@ -516,7 +516,7 @@ const DetailPage = ({
       doc.text(`PIHAK I       : _____________________`, 10, 37, { align: "left" });
       doc.text(`Bertindak untuk dan atas nama PT. POS INDONESIA (PERSERO) KC._____________________`, 10, 44, { align: "left" });
       doc.text(`PIHAK II       : _____________________`, 10, 51, { align: "left" });
-      doc.text(`Bertindak untuk dan atas nama Petugas Tiik Bagi ${drop.titik_bongkar}`, 10, 58, { align: "left" });
+      doc.text(`Bertindak untuk dan atas nama Petugas Titik Bagi ${drop.titik_bongkar}`, 10, 58, { align: "left" });
       let maxWidthBASTP = 190;
       let textTitikKeterangan = `PIHAK I telah mendistribusikan (Mengirimkan) Bantuan Operasi Pasar Subsidi melalui Driver ${drop.nama_driver} dengan Nopol Kendaraan ${drop.nopol_mobil} kepada PIHAK II`;
       let items = [];
