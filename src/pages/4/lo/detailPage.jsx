@@ -43,6 +43,8 @@ const DetailPage = ({
 
   const [lo, setLO] = useState(null);
 
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const fetchLO = async () => {
     try {
       const response = await axios.get(`http://localhost:3091/api/v1/lo/${detailId}`,
@@ -559,6 +561,38 @@ const DetailPage = ({
 
   };
 
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      alert("Pilih file dulu!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file_lo", selectedFile);
+    formData.append("nomor_lo", lo.nomor_lo);
+    formData.append("id_kantor", lo.id_kantor);
+
+    try {
+      const response = await fetch(`http://localhost:3091/api/v1/lo/upload/${detailId}`, {
+        method: "PUT",
+        body: formData,
+        headers: {
+          Authorization: token,
+        },
+      });
+
+      const result = await response.json();
+      console.log("Upload sukses:", result);
+    } catch (error) {
+      console.error("Error upload file:", error);
+    }
+  };
+
   return (
     <div className="row">
       <div className="col-lg-12">
@@ -762,6 +796,27 @@ const DetailPage = ({
                 </tbody>
               </table>
             </div>
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="file_lo" className="form-label">Upload File</label>
+            <input
+              className="form-control"
+              type="file"
+              id="file_lo"
+              name="file_lo"
+              onChange={handleFileChange}
+              required
+            />
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="" className="form-label">Proses</label>
+            <button
+              type="button"
+              onClick={handleFileUpload}
+              className="btn btn-primary w-100"
+            >
+              UPLOAD
+            </button>
           </div>
         </div>
       </div>
