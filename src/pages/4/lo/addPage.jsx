@@ -31,7 +31,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
             const bulanSekarang = new Date().getMonth() + 1;
             const bulanFormatted = String(bulanSekarang).padStart(2, "0");
             const tahunSekarang = new Date().getFullYear();
-            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/lo/jumlahlokantor/${id_kantor}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/lo/jumlahlokantor/${id_kantor}`, {
                 headers: {
                     Authorization: token
                 }
@@ -70,7 +70,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
         formDataInsert.append('file_lo', "pasar.pdf");
         formDataInsert.append('status_lo', "DIBUAT");
 
-        const response = await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/lo`, formDataInsert, {
+        const response = await axios.post(`http://localhost:3091/api/v1/lo`, formDataInsert, {
             headers: {
                 'Authorization': token,
                 'Content-Type': 'multipart/form-data',

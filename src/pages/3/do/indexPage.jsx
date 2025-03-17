@@ -103,7 +103,7 @@ const IndexPage = () => {
             navigate('/');
         }
         try {
-            const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/alokasi', {
+            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -150,7 +150,7 @@ const IndexPage = () => {
             navigate('/');
         }
         try {
-            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-do/gudang/${id_gudang}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/${link}-do/gudang/${id_gudang}`, {
                 headers: {
                     Authorization: token
                 },
@@ -200,7 +200,7 @@ const IndexPage = () => {
                         </div>
                         <div class="modal-body">
                             <iframe
-                                src={`https://apipm.delapandelapanlogistics.com/api/v1/${link}-do/${row.path_do}`}
+                                src={`http://localhost:3091/api/v1/${link}-do/${row.path_do}`}
                                 width="100%"
                                 height="700px"
                                 title="PDF DO Viewer"

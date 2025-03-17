@@ -45,7 +45,7 @@ const DetailPage = ({
 
   const fetchLO = async () => {
     try {
-      const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/lo/${detailId}`,
+      const response = await axios.get(`http://localhost:3091/api/v1/lo/${detailId}`,
         {
           headers: {
             Authorization: token,
@@ -105,7 +105,7 @@ const DetailPage = ({
     dataLOtoSubmit.append("status_lo", "DIBUAT");
     try {
       await axios.put(
-        `https://apipm.delapandelapanlogistics.com/api/v1/lo/${detailId}`,
+        `http://localhost:3091/api/v1/lo/${detailId}`,
         dataLOtoSubmit,
         {
           headers: {
@@ -140,7 +140,7 @@ const DetailPage = ({
 
   const fetchKabupaten = async () => {
     try {
-      const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/kabupaten-kota', {
+      const response = await axios.get('http://localhost:3091/api/v1/kabupaten-kota', {
         headers: {
           Authorization: token
         }
@@ -171,7 +171,7 @@ const DetailPage = ({
 
   const fetchItemLO = async () => {
     try {
-      const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/muatan/lo/${detailId}`, {
+      const response = await axios.get(`http://localhost:3091/api/v1/muatan/lo/${detailId}`, {
         headers: {
           Authorization: token
         }
@@ -215,7 +215,8 @@ const DetailPage = ({
     dataMuatantoSubmit.append("gula", formDataMuatan.gula || "0");
     try {
       await axios.post(
-        `https://apipm.delapandelapanlogistics.com/api/v1/muatan`,
+        `http://localhost:3091/api/v1/muatan`,
+        http://localhost:3091
         dataMuatantoSubmit,
         {
           headers: {
@@ -246,7 +247,7 @@ const DetailPage = ({
 
   const handleDelete = async (id_item_lo) => {
     try {
-      await axios.delete(`https://apipm.delapandelapanlogistics.com/api/v1/muatan/${id_item_lo}`, {
+      await axios.delete(`http://localhost:3091/api/v1/muatan/${id_item_lo}`, {
         headers: { Authorization: token },
       });
       Swal.fire({

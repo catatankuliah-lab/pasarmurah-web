@@ -70,7 +70,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
             link = "februari";
         }
         try {
-            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-lo/lo/${detailId}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/${link}-lo/lo/${detailId}`, {
                 headers: {
                     Authorization: token
                 }
@@ -99,7 +99,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
             link = "februari";
         }
         try {
-            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-item-lo/lo/${detailId}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/${link}-item-lo/lo/${detailId}`, {
                 headers: {
                     Authorization: token
                 }
@@ -143,7 +143,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
                 navigate('/');
             }
             try {
-                const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/alokasi', {
+                const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
                     headers: {
                         Authorization: token
                     }
@@ -190,7 +190,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
         }
         const fetchDO = async () => {
             try {
-                const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-do/agudang/${id_gudang}`, {
+                const response = await axios.get(`http://localhost:3091/api/v1/${link}-do/agudang/${id_gudang}`, {
                     headers: {
                         Authorization: token
                     }
@@ -227,7 +227,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
         }
         const fetchProvinsiOptions = async () => {
             try {
-                const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/provinsi', {
+                const response = await axios.get('http://localhost:3091/api/v1/provinsi', {
                     headers: {
                         Authorization: token
                     }
@@ -254,7 +254,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
         }
         const fetchKabupatenOptions = async (provinsiID) => {
             try {
-                const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/kabupatenkota/${provinsiID.value}`, {
+                const response = await axios.get(`http://localhost:3091/api/v1/kabupatenkota/${provinsiID.value}`, {
                     headers: {
                         Authorization: token
                     }
@@ -283,7 +283,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
         }
         const fetchKecamatanOptions = async (kabupatenID) => {
             try {
-                const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/kecamatan/${kabupatenID.value}`, {
+                const response = await axios.get(`http://localhost:3091/api/v1/kecamatan/${kabupatenID.value}`, {
                     headers: {
                         Authorization: token
                     }
@@ -312,7 +312,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
         }
         const fetchDesaKelurahanOptions = async (kecamatanID) => {
             try {
-                const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/desaKelurahan/${kecamatanID.value}`, {
+                const response = await axios.get(`http://localhost:3091/api/v1/desaKelurahan/${kecamatanID.value}`, {
                     headers: {
                         Authorization: token
                     }
@@ -350,7 +350,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
                 } else {
                     linkdtt = "januari";
                 }
-                const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${linkdtt}-dtt/desakelurahan/${desaKelurahanID.value}`, {
+                const response = await axios.get(`http://localhost:3091/api/v1/${linkdtt}-dtt/desakelurahan/${desaKelurahanID.value}`, {
                     headers: {
                         Authorization: token
                     }
@@ -406,7 +406,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
 
 
         try {
-            await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-item-lo`, dataToSubmit, {
+            await axios.post(`http://localhost:3091/api/v1/${link}-item-lo`, dataToSubmit, {
                 headers: {
                     Authorization: token
                 }
@@ -446,7 +446,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
         }
 
         try {
-            await axios.delete(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-item-lo/${id_item_lo}`, {
+            await axios.delete(`http://localhost:3091/api/v1/${link}-item-lo/${id_item_lo}`, {
                 headers: {
                     Authorization: token,
                 },
@@ -531,7 +531,7 @@ const DetailPage = ({ handlePageChanges, detailId, handleBackClick, alokasiInit,
             } else {
                 link = "januari";
             }
-            await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-do`, formDataInsert, {
+            await axios.post(`http://localhost:3091/api/v1/${link}-do`, formDataInsert, {
                 headers: {
                     'Authorization': token,
                     'Content-Type': 'multipart/form-data',

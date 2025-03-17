@@ -146,7 +146,7 @@ const IndexPage = () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                `https://apipm.delapandelapanlogistics.com/api/v1/lo/kantor/${id_kantor}`,
+                `http://localhost:3091/api/v1/lo/kantor/${id_kantor}`,
                 {
                     headers: {
                         Authorization: token,

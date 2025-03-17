@@ -24,7 +24,7 @@ const IndexPage = () => {
             }
 
             try {
-                const response = await axios.get("https://apipm.delapandelapanlogistics.com/api/v1/driver/availability", {
+                const response = await axios.get("http://localhost:3091/api/v1/driver/availability", {
                     headers: { Authorization: token },
                 });
                 console.log(response.data.data.available[0].available);

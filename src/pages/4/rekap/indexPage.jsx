@@ -207,7 +207,7 @@ const IndexPage = () => {
         }
 
         try {
-            const response = await axios.get("https://apipm.delapandelapanlogistics.com/api/v1/rekapkantor", {
+            const response = await axios.get("http://localhost:3091/api/v1/rekapkantor", {
                 headers: { Authorization: token },
                 params: {
                     id_kantor: filters.id_kantor,

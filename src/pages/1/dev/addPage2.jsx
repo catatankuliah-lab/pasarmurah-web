@@ -39,7 +39,7 @@ const AddPage = ({ handleBackClick }) => {
             navigate('/');
         }
         try {
-            const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/driver', {
+            const response = await axios.get('http://localhost:3091/api/v1/driver', {
                 headers: {
                     Authorization: token
                 }
@@ -91,7 +91,7 @@ const AddPage = ({ handleBackClick }) => {
         };
         try {
             console.log(dataToSubmit);
-            const response = await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/armada`, dataToSubmit, {
+            const response = await axios.post(`http://localhost:3091/api/v1/armada`, dataToSubmit, {
                 headers: {
                     Authorization: token
                 }

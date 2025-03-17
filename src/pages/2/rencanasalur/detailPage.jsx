@@ -48,7 +48,7 @@ const DetailPage = ({
     }
     try {
       const response = await axios.get(
-        `https://apipm.delapandelapanlogistics.com/api/v1/januari-item-rencana-salur/rencana-salur/${detailId}`,
+        `http://localhost:3091/api/v1/januari-item-rencana-salur/rencana-salur/${detailId}`,
         {
           headers: {
             Authorization: token,
@@ -95,7 +95,7 @@ const DetailPage = ({
         navigate("/");
       }
       try {
-        const response = await axios.get("https://apipm.delapandelapanlogistics.com/api/v1/alokasi", {
+        const response = await axios.get("http://localhost:3091/api/v1/alokasi", {
           headers: {
             Authorization: token,
           },
@@ -144,7 +144,7 @@ const DetailPage = ({
     }
     const fetchProvinsiOptions = async () => {
       try {
-        const response = await axios.get("https://apipm.delapandelapanlogistics.com/api/v1/provinsi", {
+        const response = await axios.get("http://localhost:3091/api/v1/provinsi", {
           headers: {
             Authorization: token,
           },
@@ -172,7 +172,7 @@ const DetailPage = ({
     const fetchKabupatenOptions = async (provinsiID) => {
       try {
         const response = await axios.get(
-          `https://apipm.delapandelapanlogistics.com/api/v1/kabupatenkota/${provinsiID.value}`,
+          `http://localhost:3091/api/v1/kabupatenkota/${provinsiID.value}`,
           {
             headers: {
               Authorization: token,
@@ -206,7 +206,7 @@ const DetailPage = ({
     const fetchKecamatanOptions = async (kabupatenID) => {
       try {
         const response = await axios.get(
-          `https://apipm.delapandelapanlogistics.com/api/v1/kecamatan/${kabupatenID.value}`,
+          `http://localhost:3091/api/v1/kecamatan/${kabupatenID.value}`,
           {
             headers: {
               Authorization: token,
@@ -238,7 +238,7 @@ const DetailPage = ({
     const fetchDesaKelurahanOptions = async (kecamatanID) => {
       try {
         const response = await axios.get(
-          `https://apipm.delapandelapanlogistics.com/api/v1/desaKelurahan/${kecamatanID.value}`,
+          `http://localhost:3091/api/v1/desaKelurahan/${kecamatanID.value}`,
           {
             headers: {
               Authorization: token,
@@ -272,7 +272,7 @@ const DetailPage = ({
     }
     const fetchGudang = async () => {
       try {
-        const response = await axios.get("https://apipm.delapandelapanlogistics.com/api/v1/gudang", {
+        const response = await axios.get("http://localhost:3091/api/v1/gudang", {
           headers: {
             Authorization: token,
           },
@@ -313,7 +313,7 @@ const DetailPage = ({
           linkdtt = "januari-dtt";
         }
         const response = await axios.get(
-          `https://apipm.delapandelapanlogistics.com/api/v1/${linkdtt}/desakelurahan/${desaKelurahanID.value}`,
+          `http://localhost:3091/api/v1/${linkdtt}/desakelurahan/${desaKelurahanID.value}`,
           {
             headers: {
               Authorization: token,
@@ -371,7 +371,7 @@ const DetailPage = ({
 
     try {
       await axios.post(
-        `https://apipm.delapandelapanlogistics.com/api/v1/januari-item-rencana-salur-with-log`,
+        `http://localhost:3091/api/v1/januari-item-rencana-salur-with-log`,
         dataToSubmit,
         {
           headers: {
@@ -421,7 +421,7 @@ const DetailPage = ({
 
     try {
       await axios.put(
-        `https://apipm.delapandelapanlogistics.com/api/v1/januari-item-rencana-salur-with-log/delete`,
+        `http://localhost:3091/api/v1/januari-item-rencana-salur-with-log/delete`,
         dataToSubmit,
         {
           headers: {

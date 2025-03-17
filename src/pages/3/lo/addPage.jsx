@@ -41,7 +41,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
     const fetchAlokasi = async () => {
         try {
-            const response = await axios.get('https://apipm.delapandelapanlogistics.com/api/v1/alokasi', {
+            const response = await axios.get('http://localhost:3091/api/v1/alokasi', {
                 headers: {
                     Authorization: token
                 }
@@ -75,7 +75,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
         }
         let nomorlo = 0;
         try {
-            const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-lo/jumlah/gudang/${id_gudang}`, {
+            const response = await axios.get(`http://localhost:3091/api/v1/${link}-lo/jumlah/gudang/${id_gudang}`, {
                 headers: {
                     Authorization: token
                 }
@@ -108,7 +108,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
         }
         const fetchdata = async () => {
             try {
-                const response = await axios.get(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-do/agudang/${id_gudang}`, {
+                const response = await axios.get(`http://localhost:3091/api/v1/${link}-do/agudang/${id_gudang}`, {
                     headers: {
                         Authorization: token
                     }
@@ -165,7 +165,7 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
             status_lo: "CREATED"
         };
         try {
-            const response = await axios.post(`https://apipm.delapandelapanlogistics.com/api/v1/${link}-lo`, dataToSubmit, {
+            const response = await axios.post(`http://localhost:3091/api/v1/${link}-lo`, dataToSubmit, {
                 headers: {
                     Authorization: token
                 }
