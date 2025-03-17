@@ -216,7 +216,6 @@ const DetailPage = ({
     try {
       await axios.post(
         `http://localhost:3091/api/v1/muatan`,
-        http://localhost:3091
         dataMuatantoSubmit,
         {
           headers: {
