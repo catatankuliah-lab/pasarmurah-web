@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
 import AddPage from './AddPage';
 import DetailPage from './detailPage';
-import Select from 'react-select';
-import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import QrScanner from "react-qr-scanner";
 
 const IndexPage = () => {
     // Data dari localstorage
@@ -19,8 +16,12 @@ const IndexPage = () => {
         if (!token) {
             navigate('/');
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [navigate]);
+
+    // eslint-disable-next-line no-unused-vars
     const [filteredData, setFilteredData] = useState([]);
+    
     const [filters, setFilters] = useState({
         nomor_lo: "",
         tanggal_lo: "",
@@ -31,15 +32,10 @@ const IndexPage = () => {
         endDate: "",
         status_lo: ""
     });
+
     const [tempFilters, setTempFilters] = useState(filters);
     const [currentView, setCurrentView] = useState('index');
     const [detailId, setDetailId] = useState(null);
-    const [alokasiInit, setAlokasiInit] = useState(null);
-
-    const [isScannerVisible, setIsScannerVisible] = useState(false);
-    const [result, setResult] = useState("");
-
-    const [dtt, setIDDTT] = useState(0);
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -68,7 +64,7 @@ const IndexPage = () => {
         },
         {
             name: "Tanggal LO",
-            selector: (row) => row.tanggal_lo,
+            selector: (row) => formatDate(row.tanggal_lo),
             sortable: true,
             width: "200px",
         },
@@ -148,13 +144,6 @@ const IndexPage = () => {
         setFilteredData(filtered);
     }, [filters, data]);
 
-
-
-    const previewStyle = {
-        height: 355,
-        width: 355,
-    };
-
     const loadData = async (page) => {
         setLoading(true);
         try {
@@ -190,6 +179,7 @@ const IndexPage = () => {
 
     useEffect(() => {
         loadData(currentPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage]);
 
     useEffect(() => {
@@ -203,26 +193,31 @@ const IndexPage = () => {
     };
 
     const handleDetailClick = (row) => {
-
             setDetailId(row.id_lo);
             setCurrentView('detail');
-        
     };
 
     const handleAddClick = () => setCurrentView('add');
 
-    const handlePageChanges = (page, id = null, idalokasi) => {
+    const handlePageChanges = (id = null) => {
         if (id !== null) {
             setDetailId(id);
-            setAlokasiInit(idalokasi)
         }
-        setCurrentView(page);
+        setCurrentView('detail');
     };
 
     const handleBackClick = () => {
         setCurrentView("index");
+        loadData();
     };
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = (`0${date.getMonth() + 1}`).slice(-2);
+        const day = (`0${date.getDate()}`).slice(-2);
+        return `${day}/${month}/${year}`;
+    };
 
     return (
         <div>
@@ -320,18 +315,6 @@ const IndexPage = () => {
                                 </div>
                             </div>
                         </div>
-                        {isScannerVisible && (
-                            <div className="row">
-                                <div className="col-md-3 col-sm-12">
-                                    <QrScanner
-                                        delay={300}
-                                        style={previewStyle}
-                                        onError={handleError}
-                                        onScan={handleScan}
-                                    />
-                                </div>
-                            </div>
-                        )}
                         <div className="col-lg-12 mt-3">
                             <DataTable
                                 columns={columns}
@@ -353,7 +336,7 @@ const IndexPage = () => {
                 </>
             )}
             {currentView === 'add' && <AddPage handlePageChanges={handlePageChanges} handleBackClick={handleBackClick} />}
-            {currentView === 'detail' && <DetailPage handlePageChanges={handlePageChanges} detailId={detailId} handleBackClick={handleBackClick} alokasiInit={alokasiInit} />}
+            {currentView === 'detail' && <DetailPage handlePageChanges={handlePageChanges} detailId={detailId} handleBackClick={handleBackClick} />}
         </div>
     );
 };

@@ -26,10 +26,12 @@ const LoginPage = () => {
             const id_role = response.data.data.id_role;
             const id_user = response.data.data.id_user;
             const id_kantor = response.data.data.id_kantor;
+            const username = response.data.data.username;
             const token = response.data.token;
             localStorage.setItem('id_role', id_role);
             localStorage.setItem('id_user', id_user);
             localStorage.setItem('id_kantor', id_kantor);
+            localStorage.setItem('username', username);
             localStorage.setItem('token', token);
             Swal.fire({
                 title: 'Login',

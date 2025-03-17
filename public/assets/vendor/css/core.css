@@ -751,7 +751,7 @@ progress {
   .container-md,
   .container-sm,
   .container {
-    max-width: 1440px;
+    max-width: 98%;
   }
 }
 :root {
