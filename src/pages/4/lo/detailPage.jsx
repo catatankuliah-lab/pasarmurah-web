@@ -43,6 +43,8 @@ const DetailPage = ({
 
   const [lo, setLO] = useState(null);
 
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const fetchLO = async () => {
     try {
       const response = await axios.get(`http://localhost:3091/api/v1/lo/${detailId}`,
@@ -110,7 +112,7 @@ const DetailPage = ({
         {
           headers: {
             Authorization: token,
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -223,7 +225,7 @@ const DetailPage = ({
         {
           headers: {
             Authorization: token,
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
           },
         }
       );
@@ -253,7 +255,7 @@ const DetailPage = ({
         headers: { Authorization: token },
       });
       Swal.fire({
-        title: "Data Item Rencana Salur",
+        title: "Data Loading Order",
         text: "Data Berhasil Dihapus",
         icon: "success",
         showConfirmButton: false,
@@ -519,7 +521,7 @@ const DetailPage = ({
       doc.text(`PIHAK I       : _____________________`, 10, 37, { align: "left" });
       doc.text(`Bertindak untuk dan atas nama PT. POS INDONESIA (PERSERO) KC._____________________`, 10, 44, { align: "left" });
       doc.text(`PIHAK II       : _____________________`, 10, 51, { align: "left" });
-      doc.text(`Bertindak untuk dan atas nama Petugas Tiik Bagi ${drop.titik_bongkar}`, 10, 58, { align: "left" });
+      doc.text(`Bertindak untuk dan atas nama Petugas Titik Bagi ${drop.titik_bongkar}`, 10, 58, { align: "left" });
       let maxWidthBASTP = 190;
       let textTitikKeterangan = `PIHAK I telah mendistribusikan (Mengirimkan) Bantuan Operasi Pasar Subsidi melalui Driver ${drop.nama_driver} dengan Nopol Kendaraan ${drop.nopol_mobil} kepada PIHAK II`;
       let items = [];
@@ -560,6 +562,53 @@ const DetailPage = ({
       compression: "FAST",
     });
 
+  };
+
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      Swal.fire({
+        title: "Error",
+        text: "Gagal upload data, pilih file terlebih dahulu",
+        icon: "error",
+        showConfirmButton: false,
+      });
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file_lo", selectedFile);
+    formData.append("nomor_lo", lo.nomor_lo);
+    formData.append("id_kantor", lo.id_kantor);
+    try {
+      await fetch(`http://localhost:3091/api/v1/lo/upload/${detailId}`, {
+        method: "PUT",
+        body: formData,
+        headers: {
+          Authorization: token,
+        },
+      });
+      Swal.fire({
+        title: "Data Loading Order",
+        text: "Data Berhasil Diupload",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 2000,
+      }).then(() => {
+        fetchLO();
+      });
+    } catch (error) {
+      console.error("Error upload file:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Gagal upload data. Silakan coba lagi.",
+        icon: "error",
+        showConfirmButton: false,
+      });
+    }
   };
 
   return (
@@ -669,23 +718,23 @@ const DetailPage = ({
               </div>
               <div className="col-md-3 col-sm-12 mb-3">
                 <label htmlFor="Titik Bongkar" className="form-label">Titik Bongkar</label>
-                <input className="form-control text-uppercase" type="text" id="titik_bongkar" name="titik_bongkar" placeholder="titik bongkar" required value={formDataMuatan.titik_bongkar} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, titik_bongkar: e.target.value })} />
+                <input className="form-control" type="text" id="titik_bongkar" name="titik_bongkar" placeholder="TITIK BONGKAR" required value={formDataMuatan.titik_bongkar} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, titik_bongkar: e.target.value })} />
               </div>
               <div className="col-md-3 col-sm-12 mb-3">
-                <label htmlFor="beras" className="form-label">Beras</label>
-                <input className="form-control text-uppercase" type="text" id="beras" name="beras" placeholder="beras" required value={formDataMuatan.beras} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, beras: e.target.value })} />
+                <label htmlFor="beras" className="form-label">Beras (Kemasan)</label>
+                <input className="form-control" type="number" id="beras" name="beras" placeholder="0" required value={formDataMuatan.beras} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, beras: e.target.value })} />
               </div>
               <div className="col-md-3 col-sm-12 mb-3">
-                <label htmlFor="minyak" className="form-label">Minyak</label>
-                <input className="form-control text-uppercase" type="text" id="minyak" name="minyak" placeholder="Minyak" required value={formDataMuatan.minyak} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, minyak: e.target.value })} />
+                <label htmlFor="minyak" className="form-label">Minyak (Kemasan)</label>
+                <input className="form-control" type="number" id="minyak" name="minyak" placeholder="0" required value={formDataMuatan.minyak} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, minyak: e.target.value })} />
               </div>
               <div className="col-md-3 col-sm-12 mb-3">
-                <label htmlFor="terigu" className="form-label">Terigu</label>
-                <input className="form-control text-uppercase" type="text" id="terigu" name="terigu" placeholder="Terigu" required value={formDataMuatan.terigu} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, terigu: e.target.value })} />
+                <label htmlFor="terigu" className="form-label">Terigu (Kemasan)</label>
+                <input className="form-control" type="number" id="terigu" name="terigu" placeholder="0" required value={formDataMuatan.terigu} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, terigu: e.target.value })} />
               </div>
               <div className="col-md-3 col-sm-12 mb-3">
-                <label htmlFor="gula" className="form-label">Gula</label>
-                <input className="form-control text-uppercase" type="text" id="gula" name="gula" placeholder="Gula" required value={formDataMuatan.gula} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, gula: e.target.value })} />
+                <label htmlFor="gula" className="form-label">Gula (Kemasan)</label>
+                <input className="form-control" type="number" id="gula" name="gula" placeholder="0" required value={formDataMuatan.gula} onChange={(e) => setFormDataMuatan({ ...formDataMuatan, gula: e.target.value })} />
               </div>
             </div>
           )}
@@ -765,6 +814,51 @@ const DetailPage = ({
                 </tbody>
               </table>
             </div>
+          </div>
+          <div className="col-lg-12 mt-2">
+            <div className="mb-3">
+              <div className="divider text-start">
+                <div className="divider-text">
+                  <span className="menu-header-text fs-6">
+                    Uplaod File Loading Order
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-9 col-sm-12 mb-4">
+            <label htmlFor="file_lo" className="form-label">Upload File</label>
+            <input
+              className="form-control"
+              type="file"
+              id="file_lo"
+              name="file_lo"
+              onChange={handleFileChange}
+              required
+            />
+          </div>
+          <div className="col-md-3 col-sm-12 mb-3">
+            <label htmlFor="" className="form-label">Proses</label>
+            <button
+              type="button"
+              onClick={handleFileUpload}
+              className="btn btn-primary w-100"
+            >
+              UPLOAD
+            </button>
+          </div>
+          <div className="col-md-12 col-sm-12 mb-3">
+            {lo && lo.file_lo && lo.file_lo !== "pasar.pdf" ? (
+              <iframe
+                key={lo.file_lo}
+                src={`http://localhost:3091/${lo.file_lo}?t=${new Date().getTime()}`}
+                width="100%"
+                height="620px"
+                style={{ border: "none" }}
+              />
+            ) : (
+              <p>Loading atau File Tidak Ada...</p>
+            )}
           </div>
         </div>
       </div>

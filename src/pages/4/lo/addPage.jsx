@@ -58,30 +58,32 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
 
     const handleSubmit = async () => {
         event.preventDefault();
-        const formDataInsert = new FormData();
-        formDataInsert.append('id_kantor', id_kantor);
-        formDataInsert.append('nomor_lo', nomorLO);
-        formDataInsert.append('tanggal_lo', formData.tanggal_lo);
-        formDataInsert.append('titik_muat', formData.titik_muat);
-        formDataInsert.append('jenis_mobil', formData.jenis_mobil);
-        formDataInsert.append('nopol_mobil', formData.nopol_mobil);
-        formDataInsert.append('nama_driver', formData.nama_driver);
-        formDataInsert.append('telpon_driver', formData.telpon_driver);
-        formDataInsert.append('file_lo', "pasar.pdf");
-        formDataInsert.append('status_lo', "DIBUAT");
+        const formDataInsert = {
+            id_kantor,
+            nomor_lo: nomorLO,
+            tanggal_lo: formData.tanggal_lo,
+            titik_muat: formData.titik_muat,
+            jenis_mobil: formData.jenis_mobil,
+            nopol_mobil: formData.nopol_mobil,
+            nama_driver: formData.nama_driver,
+            telpon_driver: formData.telpon_driver,
+            file_lo: "pasar.pdf",
+            status_lo: "DIBUAT"
+        };
 
         const response = await axios.post(`http://localhost:3091/api/v1/lo`, formDataInsert, {
             headers: {
-                'Authorization': token,
-                'Content-Type': 'multipart/form-data',
+                "Content-Type": "application/json",
+                Authorization: token
             }
         });
+
         Swal.fire({
-            title: 'Data Loading Order',
-            text: 'Data Berhasil Ditambahkan',
-            icon: 'success',
+            title: "Data Loading Order",
+            text: "Data Berhasil Ditambahkan",
+            icon: "success",
             showConfirmButton: false,
-            timer: 2000,
+            timer: 2000
         }).then(() => {
             handlePageChanges(response.data.data);
         });
@@ -116,23 +118,23 @@ const AddPage = ({ handlePageChanges, handleBackClick }) => {
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="titik_muat" className="form-label">Titik Muat</label>
-                            <input className="form-control text-uppercase" type="text" id="titik_muat" name='titik_muat' onChange={handleChange} required />
+                            <input className="form-control" type="text" id="titik_muat" name='titik_muat' onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="jenis_mobil" className="form-label">Jenis Mobil</label>
-                            <input className="form-control text-uppercase" type="text" id="jenis_mobil" name='jenis_mobil' onChange={handleChange} required />
+                            <input className="form-control" type="text" id="jenis_mobil" name='jenis_mobil' onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="nopol_mobil" className="form-label">Nopol Mobil</label>
-                            <input className="form-control text-uppercase" type="text" id="nopol_mobil" name='nopol_mobil' onChange={handleChange} required />
+                            <input className="form-control" type="text" id="nopol_mobil" name='nopol_mobil' onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="nama_driver" className="form-label">Nama Driver</label>
-                            <input className="form-control text-uppercase" type="text" id="nama_driver" name='nama_driver' placeholder="" onChange={handleChange} required />
+                            <input className="form-control" type="text" id="nama_driver" name='nama_driver' placeholder="" onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="telpon_driver" className="form-label">Telepon Driver</label>
-                            <input className="form-control text-uppercase" type="text" id="telpon_driver" name='telpon_driver' placeholder="" onChange={handleChange} required />
+                            <input className="form-control" type="text" id="telpon_driver" name='telpon_driver' placeholder="" onChange={handleChange} required />
                         </div>
                         <div className="col-md-3 col-sm-12 mb-3">
                             <label htmlFor="" className="form-label">Proses</label>
