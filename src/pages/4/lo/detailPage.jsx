@@ -357,7 +357,7 @@ const DetailPage = ({
       doc.text(titikBongkarWrapped, 22, yText1, { align: "left" });
       doc.text(`${drop.beras} Pcs`, 103, yText1, { align: "center" });
       doc.text(`(${drop.beras * 5} Kg)`, 103, yText2, { align: "center" });
-      doc.text(`${drop.minyak} Pcs`, 126, yText1, { align: "center" });
+      doc.text(`${drop.minyak * 2} Pcs`, 126, yText1, { align: "center" });
       doc.text(`(${drop.minyak * 2} Ltr)`, 126, yText2, { align: "center" });
       doc.text(`${drop.terigu} Pcs`, 149, yText1, { align: "center" });
       doc.text(`(${drop.terigu} Kg)`, 149, yText2, { align: "center" });
@@ -477,7 +477,7 @@ const DetailPage = ({
       doc.text(titikBongkarWrapped, 22, 62, { align: "left" });
       doc.text(`${drop.beras} Pcs`, 83, 62, { align: "center" });
       doc.text(`(${drop.beras*5} Kg)`, 83, 67, { align: "center" });
-      doc.text(`${drop.minyak} Pcs`, 106, 62, { align: "center" });
+      doc.text(`${drop.minyak * 2} Pcs`, 106, 62, { align: "center" });
       doc.text(`(${drop.minyak * 2} Ltr)`, 106, 67, { align: "center" });
       doc.text(`${drop.terigu} Pcs`, 129, 62, { align: "center" });
       doc.text(`(${drop.terigu} Kg)`, 129, 67, { align: "center" });
@@ -526,7 +526,7 @@ const DetailPage = ({
         items.push(`${drop.beras} Pcs Beras dalam kemasan 5 Kg dengan total ${drop.beras * 5} Kg Beras`);
       }
       if (drop.minyak > 0) {
-        items.push(`${drop.minyak} Pcs Minyak dalam kemasan 2 Liter dengan total ${drop.minyak * 2} Liter Minyak`);
+        items.push(`${drop.minyak * 2} Pcs Minyak dalam kemasan 1 Liter dengan total ${drop.minyak * 2} Liter Minyak`);
       }
       if (drop.terigu > 0) {
         items.push(`${drop.terigu} Pcs Terigu dalam kemasan 1 Kg dengan total ${drop.terigu * 1} Kg Terigu`);
