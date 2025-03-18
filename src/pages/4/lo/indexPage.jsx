@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
-import AddPage from './AddPage';
+import AddPage from './addPage';
 import DetailPage from './detailPage';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,37 +52,42 @@ const IndexPage = () => {
             name: "Nama Kantor",
             selector: (row) => row.nama_kantor,
             sortable: true,
-            width: "200px",
+            width: "250px",
+            cell: (row) => row.nama_kantor,
         },
         {
             name: "Nomor LO",
             selector: (row) => row.nomor_lo,
             sortable: true,
             width: "200px",
+            cell: (row) => row.nomor_lo,
         },
         {
             name: "Tanggal LO",
             selector: (row) => formatDate(row.tanggal_lo),
             sortable: true,
-            width: "200px",
+            width: "110px",
         },
         {
             name: "Titik Muat",
             selector: (row) => row.titik_muat,
             sortable: true,
             width: "200px",
+            cell: (row) => row.titik_muat,
         },
         {
             name: "Nopol Mobil",
             selector: (row) => row.nopol_mobil,
             sortable: true,
-            width: "200px",
+            width: "110px",
+            cell: (row) => row.nopol_mobil,
         },
         {
             name: "Nama Driver",
             selector: (row) => row.nama_driver,
             sortable: true,
             width: "200px",
+            cell: (row) => row.nama_driver,
         },
         {
             name: "",
