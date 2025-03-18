@@ -1,4 +1,25 @@
-[{
+[
+    {
+        "header": "Dashboard",
+        "items": [{
+            "text": "Dashboard",
+            "icon": "bx bx-home",
+            "available": true,
+            "link": "/2/dashboard",
+            "roles": ["2"]
+        }]
+    },
+    {
+        "header": "Rekap LO",
+        "items": [{
+            "text": "Rekap LO",
+            "icon": "bx bx-file",
+            "available": true,
+            "link": "/2/rekap",
+            "roles": ["2"]
+        }]
+    },
+    {
         "header": "Dashboard",
         "items": [{
             "text": "Dashboard",
@@ -28,4 +49,5 @@
             "roles": ["4"]
         }]
     }
+    
 ]
